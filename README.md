@@ -196,8 +196,8 @@ npm run test:browser
 ## 📁 Project Structure
 
 ```
-Chrome-Startup-Page/                      # Root repository
-├── guide_images/                    # Installation guide screenshots
+Chrome-Startup-Page/                     # Root repository
+├── guide_images/                        # Installation guide screenshots
 └── Startup Page Chrome/                 # Extension directory (load this in Chrome)
     ├── manifest.json                    # Chrome Extension manifest (Manifest V3)
     ├── index.html                       # Main new-tab page (Startpage desk layout)
