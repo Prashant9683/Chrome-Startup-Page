@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "startpage",
+  "short_name": "startpage",
+  "version": "2.0.0",
+  "description": "A quiet new tab with a clock, keyboard search and your favorite shortcuts.",
+  "author": "Prashant9683",
+  "icons": {
+    "64": "img/icon64.png"
+  },
+  "chrome_url_overrides": {
+    "newtab": "index.html"
+  },
+  "permissions": [
+    "storage"
+  ]
+}
