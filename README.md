@@ -197,6 +197,7 @@ npm run test:browser
 
 ```
 Chrome-Startup-Page/                      # Root repository
+├── guide_images/                    # Installation guide screenshots
 └── Startup Page Chrome/                 # Extension directory (load this in Chrome)
     ├── manifest.json                    # Chrome Extension manifest (Manifest V3)
     ├── index.html                       # Main new-tab page (Startpage desk layout)
@@ -223,7 +224,6 @@ Chrome-Startup-Page/                      # Root repository
     │   └── pixels.css                   # Pixel-art canvas & dot-grid styles
     ├── img/
     │   └── icon64.png                   # Extension icon
-    ├── guide_images/                    # Installation guide screenshots
     ├── script.js                        # Original Chevron launcher (bundled)
     ├── style.css                        # Original Chevron styles (bundled)
     ├── tests/                           # Unit & browser test suites
