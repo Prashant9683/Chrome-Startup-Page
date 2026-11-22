@@ -73,15 +73,9 @@ export function sceneColors(palette, textColor) {
 }
 
 const googleSearch = {
-  name: "Google Search",
-  bgColor: {
-    type: "gradient",
-    gradientType: "linear",
-    angle: 115,
-    colors: ["#4285f4", "#ea4335", "#fbbc04", "#34a853"],
-    stops: [18, 44, 66, 88],
-  },
-  textColor: "#000",
+  name: "Google",
+  bgColor: { type: "solid", color: "var(--page-bg, var(--paper))" },
+  textColor: "var(--ink)",
 };
 
 export function brandPreview(macros) {

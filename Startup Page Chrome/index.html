@@ -1,22 +1,29 @@
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="pixel" data-color-scheme="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#181917" />
-    <title>Startpage</title>
+    <title>Startpage by Prashant Gehlot</title>
     <link rel="icon" href="img/icon64.png" />
+    <link rel="preload" href="fonts/DepartureMono-Regular.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="css/pixels.css" />
+    <link rel="stylesheet" href="css/shared.css" />
     <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/themes.css" />
+    <link rel="stylesheet" href="css/homepage.css" />
+    <link rel="stylesheet" href="css/minimal.css" />
     <script defer src="config.js"></script>
     <script defer src="icons.js"></script>
     <script type="module" src="js/main.js"></script>
   </head>
   <body>
+    <div id="home-wallpaper" hidden aria-hidden="true"></div>
     <div id="brand-backdrop" aria-hidden="true" hidden>
       <div class="brand-pattern"><div class="brand-plane"></div></div>
     </div>
     <header class="bar">
-      <div class="wordmark">
+      <div class="wordmark" title="Startpage by Prashant Gehlot">
         <i class="brand-mark" aria-hidden="true"></i>Startpage
       </div>
       <p id="brand-greeting"></p>
@@ -29,70 +36,100 @@
         <span data-icon="settings"></span>
       </button>
     </header>
-    <main id="desk" hidden>
-      <section class="hero" aria-label="Today">
-        <div class="readout">
-          <div id="date" class="eyebrow"></div>
-          <div id="clock">
-            <time id="clock-time"></time><span id="period"></span>
-          </div>
-          <h1 id="greeting"></h1>
-          <a
-            id="weather"
-            href="https://open-meteo.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            hidden
-          ></a>
-        </div>
-        <canvas
-          id="landscape"
-          width="270"
-          height="130"
-          aria-hidden="true"
-        ></canvas>
-      </section>
+    <div id="home-workspace">
+      <div id="home-center">
+        <main id="desk" hidden>
+          <section class="hero" aria-label="Today">
+            <div class="readout">
+              <div id="date" class="eyebrow"></div>
+              <div id="clock">
+                <time id="clock-time"></time><span id="period"></span>
+              </div>
+              <h1 id="greeting"></h1>
+              <a
+                id="weather"
+                href="https://open-meteo.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                hidden
+              ></a>
+            </div>
+            <canvas
+              id="landscape"
+              width="270"
+              height="130"
+              aria-hidden="true"
+            ></canvas>
+          </section>
 
-      <section id="search" aria-label="Search">
-        <form id="search-form" role="search" autocomplete="off">
-          <span class="prompt" aria-hidden="true">❯</span>
-          <input
-            id="query"
-            type="text"
-            role="combobox"
-            aria-label="Search or enter a URL"
-            aria-expanded="false"
-            aria-autocomplete="list"
-            aria-controls="results"
-            spellcheck="false"
-            autocapitalize="off"
-          />
-          <button class="enter" type="submit" aria-label="Go" title="Go">
-            ↵
-          </button>
-        </form>
-        <ul
-          id="results"
-          role="listbox"
-          aria-label="Search suggestions"
-          hidden
-        ></ul>
-      </section>
+          <section id="search" aria-label="Search">
+            <form id="search-form" role="search" autocomplete="off">
+              <span class="prompt" aria-hidden="true"><span class="prompt-chevron">❯</span><span class="prompt-shell">user@macbook ~ %</span></span>
+              <input
+                id="query"
+                type="text"
+                role="combobox"
+                aria-label="Search or enter a URL"
+                aria-expanded="false"
+                aria-autocomplete="list"
+                aria-controls="results"
+                spellcheck="false"
+                autocapitalize="off"
+              />
+              <button class="enter" type="submit" aria-label="Go" title="Go">
+                ↵
+              </button>
+            </form>
+            <ul
+              id="results"
+              role="listbox"
+              aria-label="Search suggestions"
+              hidden
+            ></ul>
+          </section>
 
-      <section class="favorites" aria-labelledby="pinned-heading">
-        <div class="section-heading">
-          <h2 id="pinned-heading" class="eyebrow">Pinned</h2>
-          <button id="browse" class="text-button">
-            All shortcuts <span aria-hidden="true">↗</span>
-          </button>
-        </div>
-        <div id="pins"></div>
-      </section>
-    </main>
+          <section class="favorites" aria-labelledby="pinned-heading">
+            <div class="section-heading">
+              <h2 id="pinned-heading" class="eyebrow">Pinned</h2>
+              <button id="browse" class="text-button">
+                All shortcuts <span aria-hidden="true">↗</span>
+              </button>
+            </div>
+            <div id="pins"></div>
+          </section>
+        </main>
+      </div>
+      <div id="widget-room" aria-hidden="true"></div>
+      <aside id="widgets" aria-label="Homepage widgets" hidden>
+        <section class="widget" id="todo-widget" aria-labelledby="todo-heading" hidden>
+          <header><h2 id="todo-heading">To-do</h2>
+            <button class="move-widget" aria-label="Move To-do" aria-describedby="move-help" title="Move To-do"></button>
+          </header>
+          <ul id="reminders" aria-label="Reminders"></ul>
+          <form id="reminder-form" autocomplete="off">
+            <div class="reminder-entry">
+              <input name="task" aria-label="New reminder" placeholder="Add a reminder…" required />
+              <button type="submit" aria-label="Add reminder" title="Add reminder">+</button>
+            </div>
+            <label class="due-input">Due <input name="due" type="date" aria-label="Optional due date" /></label>
+          </form>
+        </section>
+        <section class="widget" id="notes-widget" aria-labelledby="notes-heading" hidden>
+          <header><h2 id="notes-heading">Notes</h2>
+            <button class="move-widget" aria-label="Move Notes" aria-describedby="move-help" title="Move Notes"></button>
+          </header>
+          <textarea id="home-notes" aria-label="Notes" placeholder="Write a note…" spellcheck="true"></textarea>
+        </section>
+        <p class="sr-only" id="move-help">Drag to an empty space, or use the arrow keys while the move button is focused.</p>
+      </aside>
+    </div>
     <footer class="bar">
       <div class="hints">
-        <button id="focus-search"><kbd>/</kbd> Search</button
-        ><button id="library-key"><kbd>Alt</kbd><kbd>K</kbd> Shortcuts</button>
+        <button id="focus-search"><kbd>/</kbd> Search</button>
+        <button id="library-key" aria-label="Open shortcuts" aria-keyshortcuts="Control+K Meta+K Alt+K"
+          title="Windows: Ctrl+K · Mac: ⌘K · Also works with Alt+K or ⌥K">
+          <kbd>Ctrl+K</kbd><span aria-hidden="true">/</span><kbd>⌘K</kbd> Shortcuts
+        </button>
       </div>
       <span id="zone"></span>
     </footer>
@@ -157,114 +194,6 @@
       </div>
     </dialog>
 
-    <dialog id="settings" aria-labelledby="settings-title">
-      <form id="settings-form">
-        <header class="modal-head">
-          <h2 id="settings-title">Settings</h2>
-          <button
-            class="icon-button"
-            type="button"
-            data-close
-            aria-label="Close settings"
-          >
-            ×
-          </button>
-        </header>
-        <div class="modal-body stack">
-          <div class="fields">
-            <label
-              >Name<input
-                name="user"
-                autocomplete="off"
-                placeholder="Your name"
-            /></label>
-            <div class="control">
-              <label for="pref-searchEngine">Search engine</label
-              ><select id="pref-searchEngine" name="searchEngine"></select>
-            </div>
-            <div class="control">
-              <label for="pref-theme">Theme</label
-              ><select id="pref-theme" name="theme">
-                <option value="dark">Dark</option>
-                <option value="light">Light</option>
-                <option value="system">System</option>
-                <option value="custom">Custom colors</option>
-              </select>
-            </div>
-            <div class="control">
-              <label for="pref-hourFormat">Clock format</label
-              ><select id="pref-hourFormat" name="hourFormat">
-                <option value="12">12-hour</option>
-                <option value="24">24-hour</option>
-              </select>
-            </div>
-          </div>
-          <label
-            >Time zone<input
-              name="timeZone"
-              placeholder="Device time zone"
-              list="time-zones"
-              autocomplete="off"
-          /></label>
-          <datalist id="time-zones"></datalist>
-          <label class="check"
-            ><input type="checkbox" name="showGreeting" />Show greeting</label
-          >
-          <label class="check"
-            ><input type="checkbox" name="linkInNewTab" />Open shortcuts in a
-            new tab</label
-          >
-          <label class="check"
-            ><input type="checkbox" name="showWeather" />Show weather</label
-          >
-          <div id="weather-fields" class="fields" hidden>
-            <label>City<input name="city" placeholder="City, country" /></label>
-            <div class="control">
-              <label for="pref-unit">Temperature</label
-              ><select id="pref-unit" name="unit">
-                <option value="cel">Celsius</option>
-                <option value="fah">Fahrenheit</option>
-              </select>
-            </div>
-          </div>
-          <details id="advanced">
-            <summary>Advanced &amp; backups</summary>
-            <div class="stack">
-              <div class="control">
-                <label for="pref-layout">New-tab layout</label
-                ><select id="pref-layout" name="layout">
-                  <option value="desk">Startpage</option>
-                  <option value="classic">Classic Chevron</option>
-                </select>
-              </div>
-              <div class="backup-actions">
-                <button type="button" id="import-btn">Import JSON</button
-                ><button type="button" id="export-btn">Export JSON</button>
-              </div>
-              <input
-                id="import-file"
-                type="file"
-                accept=".json,application/json"
-                hidden
-              />
-              <label
-                >Configuration JSON<textarea
-                  id="config-text"
-                  rows="7"
-                  spellcheck="false"
-                ></textarea>
-              </label>
-              <button type="button" id="apply-json">Apply JSON to draft</button>
-              <small id="version"></small>
-            </div>
-          </details>
-          <p id="settings-status" class="status" role="status"></p>
-        </div>
-        <footer class="modal-foot">
-          <button type="button" data-close>Cancel</button
-          ><button class="primary" type="submit">Save settings</button>
-        </footer>
-      </form>
-    </dialog>
+
   </body>
 </html>

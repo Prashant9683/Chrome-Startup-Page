@@ -267,11 +267,11 @@ window.CONFIG = {
       triggers: ["n", "nf", "nfx", "netflix"],
       key: "KeyN",
       icon: "netflix",
-      url: "https://media.netflix.com",
+      url: "https://www.netflix.com",
       normalisedURL: "netflix.com",
       commands: {
         search: {
-          template: "{@}/en/search?&term={$}",
+          template: "{@}/search?q={$}",
         },
       },
       bgColor: {

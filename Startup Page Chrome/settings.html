@@ -1,0 +1,392 @@
+<dialog id="settings" aria-labelledby="settings-title">
+  <form id="settings-form">
+    <header class="modal-head">
+      <h2 id="settings-title">Settings</h2>
+      <div class="setting-finder">
+        <input
+          id="find-setting"
+          type="search"
+          placeholder="Find a setting…"
+          aria-label="Find a setting"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <button
+          id="clear-setting-search"
+          type="button"
+          aria-label="Clear settings search"
+          hidden
+        >
+          ×
+        </button>
+      </div>
+      <button
+        class="icon-button"
+        type="button"
+        data-close
+        aria-label="Close settings"
+      >
+        ×
+      </button>
+    </header>
+    <div class="settings-workspace">
+      <nav id="settings-nav" aria-label="Settings sections"></nav>
+      <div class="settings-content">
+        <button id="all-settings" type="button">‹ All settings</button>
+        <p id="settings-matches" role="status" hidden></p>
+        <section data-page="general">
+          <h3 tabindex="-1">General</h3>
+          <div class="setting-group">
+            <fieldset
+              class="setting-row layout-choice"
+              data-setting="home startup switch desk launcher classic chevron"
+            >
+              <legend>New-tab layout</legend>
+              <div class="layout-pair">
+                <label
+                  ><input type="radio" name="layout" value="desk" /><span
+                    ><strong>Startpage</strong
+                    ><small>Clock, widgets and pins</small></span
+                  ></label
+                >
+                <label
+                  ><input type="radio" name="layout" value="classic" /><span
+                    ><strong>Classic Chevron</strong
+                    ><small>Keyboard-first launcher</small></span
+                  ></label
+                >
+              </div>
+            </fieldset>
+          </div>
+          <div class="setting-group">
+            <h4>Personalization</h4>
+            <label
+              class="setting-row"
+              data-setting="personalize greeting username"
+              >Name<input
+                name="user"
+                autocomplete="off"
+                placeholder="Your name"
+            /></label>
+            <label
+              class="setting-row switch-row"
+              data-setting="personalized welcome message"
+              >Show greeting<input
+                type="checkbox"
+                role="switch"
+                name="showGreeting"
+            /></label>
+          </div>
+        </section>
+        <section data-page="appearance">
+          <h3 tabindex="-1">Appearance</h3>
+          <div class="setting-group">
+            <fieldset
+              class="setting-row"
+              data-setting="visual style pixel smooth retro font"
+            >
+              <legend>Theme</legend>
+              <div class="theme-choices">
+                <label
+                  ><input type="radio" name="visualTheme" value="pixel" /><span
+                    class="type-sample"
+                    aria-hidden="true"
+                    >Aa</span
+                  >Pixel</label
+                >
+                <label
+                  ><input
+                    type="radio"
+                    name="visualTheme"
+                    value="original"
+                  /><span class="type-sample" aria-hidden="true">Aa</span
+                  >Original</label
+                >
+                <label
+                  ><input
+                    type="radio"
+                    name="visualTheme"
+                    value="editorial"
+                  /><span class="type-sample" aria-hidden="true">Aa</span
+                  >Editorial</label
+                >
+                <label
+                  ><input
+                    type="radio"
+                    name="visualTheme"
+                    value="terminal"
+                  /><span class="type-sample" aria-hidden="true">&gt;_</span
+                  >Terminal</label
+                >
+                <label
+                  ><input type="radio" name="visualTheme" value="glass" /><span
+                    class="type-sample"
+                    aria-hidden="true"
+                    >Aa</span
+                  >Glass</label
+                >
+                <label><input type="radio" name="visualTheme" value="mac-terminal" />
+                  <span class="type-sample mac-lights" aria-hidden="true"></span>macOS Terminal</label>
+                <label><input type="radio" name="visualTheme" value="vintage-windows" />
+                  <span class="type-sample vintage-folder" aria-hidden="true"></span>Vintage Windows</label>
+              </div>
+            </fieldset>
+            <fieldset
+              class="setting-row"
+              data-setting="night day automatic mode brightness"
+            >
+              <legend>Color scheme</legend>
+              <div class="segments">
+                <label
+                  ><input
+                    type="radio"
+                    name="colorScheme"
+                    value="light"
+                  />Light</label
+                >
+                <label
+                  ><input
+                    type="radio"
+                    name="colorScheme"
+                    value="dark"
+                  />Dark</label
+                >
+                <label
+                  ><input
+                    type="radio"
+                    name="colorScheme"
+                    value="system"
+                  />System</label
+                >
+                <label hidden
+                  ><input
+                    type="radio"
+                    name="colorScheme"
+                    value="custom"
+                  />Custom colors</label
+                >
+              </div>
+            </fieldset>
+          </div>
+        </section>
+        <section data-page="search">
+          <h3 tabindex="-1">Search &amp; shortcuts</h3>
+          <div class="setting-group">
+            <label
+              class="setting-row"
+              data-setting="provider browser google bing duckduckgo"
+              >Search engine<select
+                name="searchEngine"
+                aria-label="Search engine"
+              ></select
+            ></label>
+            <label
+              class="setting-row switch-row"
+              data-setting="open links destination window redirect target"
+              >Open shortcuts in a new tab<input
+                type="checkbox"
+                role="switch"
+                name="linkInNewTab"
+            /></label>
+          </div>
+        </section>
+        <section data-page="time">
+          <h3 tabindex="-1">Clock &amp; weather</h3>
+          <div class="setting-group">
+            <fieldset class="setting-row" data-setting="am pm time military">
+              <legend>Clock format</legend>
+              <div class="segments">
+                <label
+                  ><input
+                    type="radio"
+                    name="hourFormat"
+                    value="12"
+                  />12-hour</label
+                >
+                <label
+                  ><input
+                    type="radio"
+                    name="hourFormat"
+                    value="24"
+                  />24-hour</label
+                >
+              </div>
+            </fieldset>
+            <label class="setting-row" data-setting="timezone location"
+              >Time zone<input
+                name="timeZone"
+                placeholder="Device time zone"
+                list="time-zones"
+                autocomplete="off"
+            /></label>
+            <datalist id="time-zones"></datalist>
+          </div>
+          <div class="setting-group">
+            <h4>Weather</h4>
+            <label
+              class="setting-row switch-row"
+              data-setting="forecast city location temperature units celsius fahrenheit"
+              >Show weather<input
+                type="checkbox"
+                role="switch"
+                name="showWeather"
+            /></label>
+            <div id="weather-fields" hidden>
+              <label class="setting-row" data-setting="forecast location"
+                >City<input name="city" placeholder="City, country"
+              /></label>
+              <fieldset
+                class="setting-row"
+                data-setting="forecast degree units"
+              >
+                <legend>Temperature</legend>
+                <div class="segments">
+                  <label
+                    ><input
+                      type="radio"
+                      name="unit"
+                      value="cel"
+                    />Celsius</label
+                  >
+                  <label
+                    ><input
+                      type="radio"
+                      name="unit"
+                      value="fah"
+                    />Fahrenheit</label
+                  >
+                </div>
+              </fieldset>
+            </div>
+          </div>
+        </section>
+        <section data-page="home" id="homepage-options">
+          <h3 tabindex="-1">Homepage</h3>
+          <fieldset id="homepage-fields" disabled>
+            <div class="setting-group">
+              <h4>Startpage widgets</h4>
+              <label
+                class="setting-row switch-row"
+                data-setting="tasks checklist reminders"
+                >To-do list<input
+                  type="checkbox"
+                  role="switch"
+                  name="homeTodos"
+              /></label>
+              <label
+                class="setting-row switch-row"
+                data-setting="scratchpad writing"
+                >Notes<input type="checkbox" role="switch" name="homeNotes"
+              /></label>
+            </div>
+            <div class="setting-group">
+              <h4>Wallpaper</h4>
+              <div
+                class="setting-row"
+                data-setting="background photo image picture upload remove glass"
+              >
+                <label
+                  >Homepage wallpaper<input
+                    type="file"
+                    name="homeImage"
+                    accept="image/jpeg,image/png,image/webp,image/avif,image/gif"
+                /></label>
+                <div id="wallpaper-selection" hidden>
+                  <img id="wallpaper-preview" alt="Selected wallpaper" /><button
+                    type="button"
+                    id="remove-wallpaper"
+                  >
+                    Remove wallpaper
+                  </button>
+                </div>
+                <small
+                  >Used on the Startpage homepage. Your picture and widget
+                  contents stay on this device.</small
+                >
+              </div>
+            </div>
+          </fieldset>
+        </section>
+        <section data-page="launcher" data-classic>
+          <h3 tabindex="-1">Chevron launcher</h3>
+        </section>
+        <section data-page="colors" data-classic>
+          <h3 tabindex="-1">Launcher colors</h3>
+          <p id="glass-palette-note" hidden>
+            The Glass theme uses its own launcher palette.
+          </p>
+        </section>
+        <section data-page="assistant" data-classic>
+          <h3 tabindex="-1">Online tools</h3>
+        </section>
+        <section data-page="data" id="advanced">
+          <h3 tabindex="-1">Data &amp; backups</h3>
+          <div class="setting-group">
+            <h4>Shared settings</h4>
+            <div
+              class="setting-row"
+              data-setting="import export json backup restore download file"
+            >
+              <div class="backup-actions">
+                <button type="button" id="import-btn">Import JSON</button
+                ><button type="button" id="export-btn">Export JSON</button>
+              </div>
+              <input
+                id="import-file"
+                type="file"
+                accept=".json,application/json"
+                hidden
+              />
+            </div>
+            <div
+              class="setting-row"
+              data-setting="advanced configuration json editor raw draft"
+            >
+              <label
+                >Configuration JSON<textarea
+                  id="config-text"
+                  rows="5"
+                  spellcheck="false"
+                ></textarea>
+              </label>
+              <button type="button" id="apply-json">Apply JSON to draft</button>
+            </div>
+          </div>
+          <div class="setting-group" data-classic>
+            <h4>Classic Chevron</h4>
+            <div
+              class="setting-row"
+              data-setting="reset restore local launcher defaults"
+            >
+              <button type="button" data-reset>Restore Chevron defaults</button>
+              <small
+                >Save settings to apply the reset, or cancel to keep your
+                current preferences.</small
+              >
+            </div>
+          </div>
+          <div class="setting-group">
+            <h4>About Startpage</h4>
+            <div
+              class="setting-row"
+              data-setting="developer prashant gehlot author copyright attribution license dependencies version"
+            >
+              <small id="version"></small>
+              <a href="THIRD_PARTY_NOTICES.txt" target="_blank" rel="noopener"
+                >Credits &amp; licenses</a
+              >
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+    <p id="settings-status" class="status" role="status"></p>
+    <footer class="modal-foot">
+      <small class="credit">Made with ❤️ by Prashant Gehlot</small>
+      <div class="settings-actions">
+        <button type="button" data-close>Cancel</button>
+        <button class="primary" type="submit">Save settings</button>
+      </div>
+    </footer>
+  </form>
+</dialog>

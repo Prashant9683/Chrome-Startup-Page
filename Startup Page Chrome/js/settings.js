@@ -1,11 +1,28 @@
+import { settingsNavigation } from "./settings-navigation.js";
+import { homepageSettings } from "./homepage-options.js";
 import { changes, validZone } from "./preferences.js";
 
-export function settingsDialog({ get, validate, save, engines, version }) {
+export async function settingsDialog({ get, validate, save, engines, version, classicOptions }) {
+  const markup = await fetch(new URL("../settings.html", import.meta.url));
+  if (!markup.ok) throw Error("Could not load Settings.");
+  document.body.insertAdjacentHTML("beforeend", await markup.text());
   const dialog = document.querySelector("#settings");
   const form = document.querySelector("#settings-form");
+  const submit = form.querySelector('[type="submit"]');
+  const dismiss = dialog.querySelectorAll("[data-close]");
+  for (const button of dismiss) button.onclick = () => dialog.close();
+  dialog.addEventListener("cancel", event => {
+    if (submit.disabled) event.preventDefault();
+  });
   const field = form.elements;
+  const textFields = [
+    "user", "searchEngine", "visualTheme", "colorScheme", "timeZone", "layout",
+  ];
   const json = document.querySelector("#config-text");
   const status = document.querySelector("#settings-status");
+  const homepage = homepageSettings(form, status);
+  const navigation = settingsNavigation(form, classicOptions, homepage.load);
+  form.addEventListener("invalid", event => navigation.reveal(event.target), true);
   let original,
     draft,
     pendingJson = false;
@@ -14,12 +31,16 @@ export function settingsDialog({ get, validate, save, engines, version }) {
   for (const name of Intl.supportedValuesOf?.("timeZone") || []) {
     document.querySelector("#time-zones").append(new Option(name));
   }
-  document.querySelector("#version").textContent = "Startpage " + version;
+  document.querySelector("#version").textContent = "Startpage " + version + " · © 2026 Prashant Gehlot";
 
+  function updatePaletteHint() {
+    const note = form.querySelector("#glass-palette-note");
+    if (note) note.hidden = field.visualTheme.value !== "glass";
+  }
   function setControls() {
-    field.theme.querySelector("[value=custom]").hidden =
-      !Object.keys(draft.style).length && draft.theme !== "custom";
-    for (const key of ["user", "searchEngine", "theme", "timeZone", "layout"])
+    form.querySelector("[name=colorScheme][value=custom]").closest("label").hidden =
+      !Object.keys(draft.style).length && draft.colorScheme !== "custom";
+    for (const key of textFields)
       field[key].value = draft[key];
     field.hourFormat.value = draft.disable24Hour ? "12" : "24";
     field.showGreeting.checked = !draft.disableMessage;
@@ -30,10 +51,12 @@ export function settingsDialog({ get, validate, save, engines, version }) {
     document.querySelector("#weather-fields").hidden = draft.disableWeather;
     json.value = JSON.stringify(draft, null, 2);
     pendingJson = false;
+    updatePaletteHint();
+    navigation.refresh();
   }
 
   function readControls() {
-    for (const key of ["user", "searchEngine", "theme", "timeZone", "layout"])
+    for (const key of textFields)
       draft[key] = field[key].value.trim();
     draft.disable24Hour = field.hourFormat.value === "12";
     draft.disableMessage = !field.showGreeting.checked;
@@ -59,8 +82,11 @@ export function settingsDialog({ get, validate, save, engines, version }) {
       pendingJson = true;
       return;
     }
-    if (event.target.type === "file") return;
+    if (event.target.id === "find-setting" || event.target.closest("[data-local]")) return;
+    if (event.target.type === "file" || event.target.closest("#homepage-options")) return;
     readControls();
+    if (event.target.name === "visualTheme") updatePaletteHint();
+    if (event.target === field.showWeather) navigation.refresh();
     if (!pendingJson) json.value = JSON.stringify(draft, null, 2);
     status.textContent = "";
   });
@@ -117,36 +143,41 @@ export function settingsDialog({ get, validate, save, engines, version }) {
   };
   form.onsubmit = async (event) => {
     event.preventDefault();
-    const submit = form.querySelector('[type="submit"]');
     if (submit.disabled) return;
     try {
-      if (pendingJson) applyJson();
-      else readControls();
+      if (pendingJson) {
+        try { applyJson(); } catch (error) { navigation.reveal(json); throw error; }
+      } else readControls();
       if (!validZone(draft.timeZone)) {
-        field.timeZone.focus();
+        navigation.reveal(field.timeZone);
         throw Error(
           "Enter a time zone such as Asia/Kolkata, or leave it blank for device time.",
         );
       }
       if (!draft.disableWeather && !draft.weatherConf.location.trim()) {
-        field.city.focus();
+        navigation.reveal(field.city);
         throw Error("Enter a city for weather.");
       }
       submit.disabled = true;
-      await save(changes(original, validate(draft)));
+      for (const button of dismiss) button.disabled = true;
+      const patch = changes(original, validate(draft));
+      await homepage.save(() => save(patch, classicOptions?.edits()));
       dialog.close();
     } catch (error) {
       status.textContent = error.message;
     } finally {
       submit.disabled = false;
+      for (const button of dismiss) button.disabled = false;
     }
   };
   return () => {
     if (dialog.open) return;
     original = structuredClone(get());
     draft = structuredClone(original);
-    document.querySelector("#advanced").open = false;
     status.textContent = "";
+    homepage.open();
+    classicOptions?.open(form, navigation.refresh);
+    navigation.open();
     setControls();
     dialog.showModal();
   };

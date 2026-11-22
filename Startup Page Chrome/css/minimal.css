@@ -1,0 +1,198 @@
+/* Spacing and text color define groups and interactive states. */
+body :is(header.bar, footer.bar, #search-form, #results, #results li, #preferences,
+  .enter, kbd, .brand-mark, .tile, .widget, .reminder-entry, #home-notes, #notice) {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+body:has(#brand-backdrop[hidden]) .brand-mark {
+  width: 14px;
+  color: var(--accent);
+}
+body:has(#brand-backdrop[hidden]) #search-form { padding-inline: 0; }
+body:has(#brand-backdrop[hidden]) #search-form:focus-within input::placeholder {
+  color: var(--ink);
+}
+body:has(#brand-backdrop[hidden]) #search:has(#results:not([hidden])) + .favorites {
+  visibility: hidden;
+}
+#results li:hover > span:nth-child(2),
+#results li[aria-selected="true"] > span:nth-child(2),
+body:has(#brand-backdrop:not([hidden])) #results li:is(:hover,[aria-selected="true"]) > span:nth-child(2) {
+  font-weight: 700;
+  text-decoration: none;
+}
+body :is(.tile, #preferences, .enter, .text-button, .hints button):is(:hover,:focus-visible) {
+  color: var(--accent);
+  text-decoration: none;
+}
+body:has(#brand-backdrop:not([hidden])) :is(#preferences, .enter, .hints button):is(:hover,:focus-visible) {
+  color: inherit;
+  opacity: .72;
+  text-decoration: none;
+}
+body #weather { text-decoration: none; }
+body .widget:has(.moving) { outline: none; }
+body .widget:has(.moving) h2 { color: var(--accent); }
+
+/* Settings and the shortcut library use the viewport as their surface. */
+body :is(#settings,#library) {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: var(--aura, none), var(--paper);
+  backdrop-filter: none;
+  color: var(--ink);
+}
+#settings-form, #library > * {
+  width: min(100%, 900px);
+  margin-inline: auto;
+}
+#settings-form { height: 100%; }
+#library .modal-body { width: min(100%, 640px); }
+body :is(#settings,#library) :is(button, input, textarea, select, .modal-head,
+  .modal-foot, .library-row, details, #settings-nav, #settings-status, #wallpaper-preview):not([role="switch"]) {
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+}
+#settings :is(#settings-nav button,#settings-nav [aria-current],.setting-finder input,
+  .setting-row,.setting-row label,.palette-modes button,#settings-status,[data-page]) {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+#settings #settings-form :is(#settings-nav button, .setting-row, .palette-modes) {
+  border-bottom: 1px solid var(--line);
+}
+#settings .palette-modes { padding-block-end: 10px; }
+#settings .switch-row { cursor: pointer; }
+#settings .switch-row input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+#settings :is(.segments,.layout-pair,.theme-choices) label:has(:checked),
+#settings .palette-modes [aria-pressed=true] {
+  color: var(--accent);
+  background: transparent;
+  font-weight: 700;
+}
+#settings :is(.segments,.layout-pair,.theme-choices) label:has(input:focus-visible) {
+  outline: 0;
+  color: var(--accent);
+  filter: brightness(1.18);
+}
+.reminder-row input {
+  appearance: none;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 1em;
+  height: 1.5em;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+}
+.reminder-row input::before {
+  content: "○";
+  background: transparent;
+  width: auto;
+  height: auto;
+  margin: 0;
+  text-align: center;
+  line-height: 1.5;
+}
+.reminder-row input:checked { color: var(--accent); }
+.reminder-row input:checked::before {
+  content: "✓";
+  background: transparent;
+  transform: none;
+}
+#settings input[type=color]::-webkit-color-swatch { border: 0; border-radius: 50%; }
+#settings input[type=color]::-webkit-color-swatch-wrapper { padding: 0; }
+#settings .color-sheet input[type=color] { width: 22px; height: 22px; }
+body :is(#settings,#library) a { text-decoration: none; }
+body :is(#settings,#library) .primary,
+body :is(#settings,#library) :is(button,a,summary):hover { color: var(--accent); }
+#settings .modal-foot {
+  justify-content: space-between;
+  flex-wrap: wrap;
+  row-gap: 2px;
+}
+#settings .credit { color: var(--muted); }
+.settings-actions { display: flex; margin-inline-start: auto; }
+
+body :focus-visible {
+  outline: 0;
+  filter: brightness(1.22);
+}
+body :is(button,a,summary,input,textarea,select):focus-visible { color: var(--accent); }
+@media (forced-colors: active) {
+  body :focus-visible,
+  #settings :is(.segments,.layout-pair,.theme-choices) label:has(input:focus-visible) {
+    outline: 2px solid Highlight;
+  }
+  .reminder-row input { appearance: auto; }
+  .reminder-row input::before { content: none; }
+}
+
+.classic-page #root :is(._card_1b58e_1, ._plate_1b58e_171, ._prefix_12lgi_77,
+  ._suggestion_12lgi_39 > div, code, pre) {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+.classic-page #root :is(._card_1b58e_1, ._plate_1b58e_171)::before { background: transparent; }
+.classic-page #root ._prefix_12lgi_77 { color: inherit; }
+.classic-page #root ._suggestion_12lgi_39 > div { text-decoration: none; }
+.classic-page #root ._suggestion_12lgi_39:is(._selected_12lgi_107,:hover) > div {
+  font-weight: 700;
+  color: var(--query);
+}
+
+#settings input::file-selector-button {
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font: inherit;
+  cursor: pointer;
+}
+body :is(#settings,#library) :is(button,a,summary,input,textarea,select):focus-visible,
+#settings :is(.segments,.layout-pair,.theme-choices) label:has(input:focus-visible) {
+  text-shadow: 0 0 .7px currentColor;
+}
+
+#settings input[type=number] { appearance: textfield; }
+#settings input[type=number]::-webkit-inner-spin-button { appearance: none; }
+
+#settings .modal-foot {
+  padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+}
+#settings .settings-actions { gap: 10px; }
+#settings #settings-form .settings-actions button {
+  min-height: 40px;
+  padding: 9px 18px;
+  border: 1px solid var(--muted);
+  border-radius: var(--control-radius, 0);
+  color: var(--ink);
+  background: var(--panel);
+}
+#settings #settings-form .settings-actions button.primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+#settings #settings-form .settings-actions button:hover { filter: brightness(1.12); }
+#settings #settings-form .settings-actions button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+#settings #settings-form .settings-actions button:disabled { opacity: .5; cursor: wait; }

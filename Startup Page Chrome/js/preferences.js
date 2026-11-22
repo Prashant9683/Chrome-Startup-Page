@@ -28,7 +28,9 @@ function validateField(key, value, defaults, engines) {
       return validZone(value);
     case "layout":
       return ["desk", "classic"].includes(value);
-    case "theme":
+    case "visualTheme":
+      return ["pixel", "original", "editorial", "terminal", "mac-terminal", "vintage-windows", "glass"].includes(value);
+    case "colorScheme":
       return ["system", "dark", "light", "custom"].includes(value);
     case "searchEngine":
       return string(value) && Object.hasOwn(engines, value);
@@ -80,6 +82,13 @@ function validateField(key, value, defaults, engines) {
 }
 
 export function preferences(input, defaults, engines, strict = false) {
+  // Earlier profiles and JSON backups stored the color scheme under "theme".
+  if (
+    record(input) &&
+    Object.hasOwn(input, "theme") &&
+    !Object.hasOwn(input, "colorScheme")
+  )
+    input = { ...input, colorScheme: input.theme };
   if (
     !record(input) ||
     (strict && !Object.keys(defaults).some((key) => Object.hasOwn(input, key)))
@@ -98,8 +107,8 @@ export function preferences(input, defaults, engines, strict = false) {
     }
     result[key] = structuredClone(value);
   }
-  if (!Object.hasOwn(input, "theme") && Object.keys(result.style).length)
-    result.theme = "custom";
+  if (!Object.hasOwn(input, "colorScheme") && Object.keys(result.style).length)
+    result.colorScheme = "custom";
   if (strict && !result.disableWeather && !result.weatherConf.location.trim())
     throw Error("Enter a city for weather.");
   return result;

@@ -1,16 +1,6 @@
 import { calculate } from './js/calculator.js';
 import { brandBackground as _A } from './js/brand.js';
 import { chatReply, convertCurrency } from './js/classic-services.js';
-const settings = JSON.parse(localStorage.getItem("settings"));
-const appearance = settings?.appearance;
-if (appearance) {
-  const scheme = appearance.colorScheme === "auto"
-    ? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
-    : appearance.colorScheme;
-  const background = appearance.themes?.[appearance.activeTheme]?.[scheme]?.background;
-  if (background) document.documentElement.style.backgroundColor = background;
-}
-
 var K_ = Object.defineProperty;
 var q_ = (e, t, n) =>
   t in e
@@ -24439,7 +24429,7 @@ const z9 = {
         { format: "{@}ms" }
       ),
       locale: new Js("en", "[language]-[COUNTRY]"),
-      tabTitle: new Js("Chevron"),
+      tabTitle: new Js("Classic Chevron · Startpage by Prashant Gehlot"),
       redirectTarget: new Xn("_self", ["_self", "_blank"]),
     },
     appearance: {
@@ -24483,8 +24473,9 @@ const z9 = {
         autocompleteLimit: new rn(10, { min: 0, max: 50 }),
         historyLimit: new rn(5, { min: 0, max: 50 }),
       },
+      liveCurrency: new Xn(false),
       AI: {
-        enabled: new Xn(!0),
+        enabled: new Xn(false),
         apiKey: new Js("", "Enter your OpenAI API key"),
         model: new Js("gpt-3.5-turbo", "Chat completions model"),
         temperature: new rn(0.4, { min: 0, max: 1, step: 0.05 }),
@@ -24582,49 +24573,22 @@ class Xi {
     Xi.write(this.name, this.object);
   }
 }
-const Nf = class extends Xi {
-  static get initialState() {
-    return {};
-  }
-  constructor() {
-    super(Nf.objectName, Nf.initialState);
-  }
-  set(t) {
-    (this.object = t), this.sync();
-  }
-};
-let xd = Nf;
-pn(xd, "objectName", "settings");
-const p3 = new xd(),
-  V9 = aE.exports(yd.defaults, p3.object),
-  Kn = k.exports.createContext(null),
-  h3 = k.exports.createContext(null),
+export const classicSchema = yd.template;
+export function readClassicOptions(defaultsOnly = false) {
+  if (defaultsOnly) return yd.defaults;
+  return aE.exports(yd.defaults, Xi.read("settings") || {});
+}
+const Kn = k.exports.createContext(null),
   zp = k.exports.createContext(null),
   Hy = k.exports.createContext(null);
-function H9({ children: e }) {
-  const [t, n] = k.exports.useState(V9),
-    r = t.appearance.activeTheme,
-    o = pR(),
-    i = t.appearance.colorScheme === "auto" ? o : t.appearance.colorScheme,
-    a = t.appearance.themes[r][i];
-  return (
-    k.exports.useEffect(() => {
-      p3.set(t);
-    }, [t]),
-    k.exports.useEffect(() => {
-      localStorage.setItem("joy-mode", i);
-    }, [i]),
-    R(Kn.Provider, {
-      value: t,
-      children: R(h3.Provider, {
-        value: n,
-        children: R(zp.Provider, {
-          value: a,
-          children: R(Hy.Provider, { value: i, children: e }),
-        }),
-      }),
-    })
-  );
+function H9({ settings, palette, scheme, children }) {
+  return R(Kn.Provider, {
+    value: settings,
+    children: R(zp.Provider, {
+      value: palette,
+      children: R(Hy.Provider, { value: scheme, children }),
+    }),
+  });
 }
 var ji, is;
 class j9 {
@@ -30437,7 +30401,13 @@ function Dj() {
     []
   );
   const a = { "--font-size": t + "em" };
-  return R("div", { className: Oj.time, style: a, children: Ej(r, n) });
+  return R("div", { className: Oj.time, style: a, children: e.sharedClock
+    ? r.toLocaleTimeString(undefined, {
+        timeZone: e.sharedClock.timeZone || undefined,
+        hour: e.sharedClock.disable24Hour ? "numeric" : "2-digit",
+        minute: "2-digit", hourCycle: e.sharedClock.disable24Hour ? "h12" : "h23",
+      })
+    : Ej(r, n) });
 }
 function $T(e, t) {
   t.current = setTimeout(() => {
@@ -38532,11 +38502,11 @@ function qq(e, t) {
           e === c.current && u(d.slice(0, o), "autocomplete");
         }),
         a && u(Kq.suggest(e).slice(0, i), "history"),
-        Gq.test(e) &&
+        n.query.liveCurrency && Gq.test(e) &&
           Jq(e).then((d) => {
             e === c.current && d && u([d], "currency");
           }).catch(() => {}));
-    }, [e, a, t, o, i, u, r]),
+    }, [e, a, t, o, i, u, r, n.query.liveCurrency]),
     s
   );
 }
@@ -45899,7 +45869,7 @@ function wQ({ query: e, className: t }) {
   return (
     k.exports.useEffect(() => {
       if (!r) return;
-      if (e && !o.trim()) { l("Add an API key in the classic AI settings to use chat."); return; }
+      if (e && !o.trim()) { l("Add an API key in Settings → Online tools to use chat."); return; }
       let c = null;
       if (e) {
         const d = { content: e, role: "user" },
@@ -46096,363 +46066,6 @@ function jC(e, t, n) {
   return o < 0 || o >= e.length ? null : e[o];
 }
 const _Q = k.exports.memo(AQ);
-function UC({ title: e, isPlaceholder: t = !1, onApply: n, onCancel: r }) {
-  const o = Object.assign(
-    { zIndex: 10 },
-    t ? { visibility: "hidden" } : { maxHeight: 0 }
-  );
-  return R(Or, {
-    sx: o,
-    children: se(Or, {
-      sx: (i) => ({
-        p: 1,
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        boxShadow: "0px 5px 10px #0003",
-        background: `rgba(${i.vars.palette.neutral.mainChannel} / 0.4)`,
-        backdropFilter: "blur(10px)",
-      }),
-      children: [
-        R($P, { onClick: n }),
-        R(ys, {
-          level: "h3",
-          sx: { mx: 2 },
-          textAlign: "center",
-          children: e,
-        }),
-        R(MP, { onClick: r }),
-      ],
-    }),
-  });
-}
-function OQ(e, t) {
-  let n = e.replace(/([A-Z])/g, " $1");
-  return (
-    (n = n.toLowerCase()), t && (n = n.charAt(0).toUpperCase() + n.slice(1)), n
-  );
-}
-function DQ({
-  template: e,
-  current: t,
-  path: n,
-  isThemeColor: r = !1,
-  onChange: o,
-}) {
-  const i = OQ(n.slice(n.lastIndexOf(".") + 1), !r),
-    a = cu(e, n);
-  return se(Or, {
-    sx: {
-      display: "flex",
-      justifyContent: "flex-start",
-      alignItems: "center",
-      height: "2em",
-    },
-    children: [
-      R(ys, { level: "body1", sx: { mr: 5 }, children: i }),
-      R(Or, {
-        sx: { ml: "auto", display: "flex" },
-        children: a.render(t, n, o),
-      }),
-    ],
-  });
-}
-function q4({
-  path: e,
-  template: t,
-  current: n,
-  hidden: r,
-  onChange: o,
-  visibility: i = !0,
-}) {
-  const a = e.split("."),
-    s = a.length > 1,
-    l = a[a.length - 1],
-    [u, c] = k.exports.useState(!s),
-    d = cu(t, e) instanceof Ma,
-    [f, h] = k.exports.useState(
-      d ? document.body.getAttribute("data-color-scheme") || "light" : ""
-    ),
-    p = f ? e + "." + f : e;
-  return se(ln, {
-    children: [
-      se(Or, {
-        onClick: s ? () => c((m) => !m) : null,
-        sx: {
-          display: i ? "flex" : "none",
-          alignItems: "center",
-          cursor: s ? "pointer" : void 0,
-          px: 2,
-          py: 1,
-        },
-        children: [
-          R(ys, {
-            level: s ? "h5" : "h4",
-            sx: { textTransform: d ? void 0 : "capitalize" },
-            children: l,
-          }),
-          d &&
-            R(LQ, {
-              selected: f,
-              onSetSelected: () => h((m) => (m === "light" ? "dark" : "light")),
-            }),
-          s &&
-            R(Gi, {
-              variant: "plain",
-              color: "neutral",
-              sx: { ml: "auto" },
-              children: R(q8, {
-                size: "1.5em",
-                style: u ? { transform: "rotate(90deg)" } : null,
-              }),
-            }),
-        ],
-      }),
-      u &&
-        R(mF, {
-          variant: "solid",
-          sx: (m) => ({
-            maxHeight: u ? void 0 : "0px",
-            background: m.vars.palette.background.level1,
-            borderRadius: s ? void 0 : "12px",
-            borderLeft: s ? "1px solid black" : void 0,
-            borderColor: s ? "divider" : void 0,
-            overflow: "hidden",
-            mb: s ? (u ? 1 : 0) : 2,
-            py: s ? 0 : void 0,
-            ml: s ? 2 : 0,
-          }),
-          children: R(RQ, {
-            template: t,
-            current: n,
-            path: p,
-            isThemeColor: d,
-            hidden: r,
-            onChange: o,
-          }),
-        }),
-    ],
-  });
-}
-function RQ({
-  template: e,
-  current: t,
-  path: n,
-  isThemeColor: r = !1,
-  hidden: o,
-  onChange: i,
-}) {
-  const a = n.indexOf(".") !== -1,
-    s = cu(e, n),
-    l = [];
-  for (const u in s) {
-    const c = n + "." + u,
-      d = !o.includes(c);
-    d && l.push(R(Dz, { inset: a ? "gutter" : void 0 }, u + "d")),
-      "render" in s[u]
-        ? l.push(
-            R(
-              kF,
-              {
-                sx: { display: d ? void 0 : "none", mr: a ? 1 : void 0 },
-                children: R(Fz, {
-                  children: R(DQ, {
-                    template: e,
-                    current: t,
-                    path: c,
-                    isThemeColor: r,
-                    onChange: i,
-                  }),
-                }),
-              },
-              u
-            )
-          )
-        : l.push(
-            R(
-              q4,
-              {
-                template: e,
-                current: t,
-                path: c,
-                hidden: o,
-                visibility: d,
-                onChange: i,
-              },
-              u
-            )
-          );
-  }
-  return l.shift(), l;
-}
-function LQ({ selected: e, onSetSelected: t }) {
-  return R(AP, {
-    checked: e === "light",
-    onChange: t,
-    onClick: (n) => n.stopPropagation(),
-    size: "md",
-    variant: e === "light" ? "solid" : "outlined",
-    color: "warning",
-    sx: { ml: 1 },
-    slotProps: {
-      track: {
-        children: R(ln, {
-          children: se("div", {
-            style: {
-              display: "flex",
-              justifyContent: "space-between",
-              width: "100%",
-              padding: "0 6px",
-            },
-            children: [
-              R(n7, { size: "1em" }),
-              R(e7, { size: "1em", sx: { mr: "auto" } }),
-            ],
-          }),
-        }),
-      },
-    },
-  });
-}
-function IQ({ onClose: e }) {
-  const t = k.exports.useContext(Kn),
-    n = k.exports.useContext(h3),
-    r = k.exports.useRef(t),
-    [o, i] = k.exports.useState(!1),
-    a = o ? [] : yd.hidden;
-  return R(
-    rr.div,
-    {
-      transition: { duration: 0.25 },
-      initial: { x: "100%" },
-      animate: { x: 0 },
-      exit: { x: "100%" },
-      style: {
-        position: "absolute",
-        height: "100vh",
-        display: "flex",
-        alignItems: "center",
-        top: 0,
-        right: 0,
-        zIndex: 99,
-      },
-      children: R(O6, {
-        children: se(PP, {
-          sx: (s) => ({
-            p: 0,
-            m: "0 1em",
-            height: "calc(100vh - 1em * 2)",
-            overflow: "hidden",
-            minWidth: "300px",
-            borderRadius: "15px",
-            boxShadow: "-5px 5px 10px #0003",
-            background: s.vars.palette.background.body,
-          }),
-          children: [
-            R(UC, {
-              title: "Settings",
-              onCancel: () => {
-                n(r.current), e();
-              },
-              onApply: e,
-            }),
-            se(Or, {
-              sx: {
-                overflowX: "hidden",
-                overflowY: "auto",
-                px: 2,
-                "&::-webkit-scrollbar": { width: 0 },
-              },
-              children: [
-                R(UC, { title: "Settings", isPlaceholder: !0 }),
-                Object.entries(yd.template).map(([s]) =>
-                  a.includes(s)
-                    ? null
-                    : R(
-                        q4,
-                        {
-                          path: s,
-                          hidden: a,
-                          template: yd.template,
-                          current: t,
-                          onChange: n,
-                        },
-                        s
-                      )
-                ),
-                se(Or, {
-                  sx: {
-                    display: "flex",
-                    justifyContent: "space-evenly",
-                    borderRadius: "12px 12px 0 0",
-                    overflow: "hidden",
-                  },
-                  children: [
-                    R(Gi, {
-                      sx: (s) => ({
-                        borderRadius: 0,
-                        background: s.vars.palette.background.level1,
-                        "&:focus": {
-                          outline: "none",
-                          backgroundColor:
-                            s.vars.palette.primary.outlinedActiveBg,
-                        },
-                      }),
-                      fullWidth: !0,
-                      variant: "soft",
-                      color: "neutral",
-                      onClick: () => i((s) => !s),
-                      children: o
-                        ? R(Y8, { size: "1.5em" })
-                        : R(G8, { size: "1.5em" }),
-                    }),
-                    R(Gi, {
-                      sx: (s) => ({
-                        borderRadius: 0,
-                        background: s.vars.palette.background.level1,
-                        "&:focus": {
-                          outline: "none",
-                          backgroundColor:
-                            s.vars.palette.primary.outlinedActiveBg,
-                        },
-                      }),
-                      fullWidth: !0,
-                      variant: "soft",
-                      color: "neutral",
-                      onClick: () => {
-                        localStorage.removeItem("settings"), location.reload();
-                      },
-                      children: "Reset settings",
-                    }),
-                    R(Gi, {
-                      sx: (s) => ({
-                        borderRadius: 0,
-                        background: s.vars.palette.background.level1,
-                        "&:focus": {
-                          outline: "none",
-                          backgroundColor:
-                            s.vars.palette.primary.outlinedActiveBg,
-                        },
-                      }),
-                      fullWidth: !0,
-                      variant: "soft",
-                      color: "neutral",
-                      onClick: () => {
-                        localStorage.removeItem("history"), location.reload();
-                      },
-                      children: "Clean history",
-                    }),
-                  ],
-                }),
-              ],
-            }),
-          ],
-        }),
-      }),
-    },
-    "settings"
-  );
-}
 const $Q = "_container_jgho0_1",
   MQ = "_visited_jgho0_15",
   WC = { container: $Q, visited: MQ };
@@ -46466,7 +46079,7 @@ function KC({ id: e, style: t, children: n, onClick: r }) {
     "button",
     {
       type: "button",
-      "aria-label": e === "settings" ? "Classic settings" : "Shortcut menu",
+      "aria-label": "Shortcut menu",
       style: t,
       onClick: i,
       className: Go(WC.container, o && WC.visited),
@@ -48271,8 +47884,6 @@ function ree() {
     o = Mn((g) => g.redirected),
     i = Mn((g) => g.timestamp),
     a = Bp(),
-    s = q9(),
-    [l, u] = k.exports.useState(!1),
     [c, d] = k.exports.useState(!1),
     f = k.exports.useRef(null),
     h = k.exports.useRef(null),
@@ -48316,7 +47927,8 @@ function ree() {
       document.title = e.general.tabTitle;
     }, [e.general.tabTitle]),
     k.exports.useEffect(() => {
-      const g = document.documentElement;
+      const g = document.querySelector("#root");
+      document.body.style.setProperty("--classic-ink", t.primary);
       for (const v in t) g.style.setProperty("--" + v, t[v]);
     }, [t]),
     k.exports.useEffect(() => {
@@ -48332,21 +47944,11 @@ function ree() {
     }, []),
     R("div", {
       className: "app",
-      "data-show-greeting": !l && !o && r !== "opened" && (!eee || nee) ? "" : undefined,
+      "data-show-greeting": !o && r !== "opened" && (!eee || nee) ? "" : undefined,
       children:
         !eee || nee
           ? R(bj, {
-              children: l
-                ? R(
-                    IQ,
-                    {
-                      onClose: () => {
-                        u(!1), s();
-                      },
-                    },
-                    "settings"
-                  )
-                : se(
+              children: se(
                     rr.div,
                     {
                       className: Qc.container,
@@ -48356,12 +47958,6 @@ function ree() {
                       children: [
                         R(gK, {}),
                         R(_Q, {}),
-                        R(KC, {
-                          id: "settings",
-                          style: { right: 0, top: 0 },
-                          onClick: () => u((g) => !g),
-                          children: R(Z8, {}),
-                        }),
                         se(KC, {
                           id: "macros-menu",
                           style: { right: 0, bottom: 0 },
@@ -48402,8 +47998,9 @@ function ree() {
     })
   );
 }
-e0.createRoot(document.getElementById("root")).render(
-  R(Ze.StrictMode, {
-    children: R(H9, { children: R(K9, { children: R(ree, {}) }) }),
-  })
-);
+const classicRoot = e0.createRoot(document.getElementById("root"));
+export function renderClassic(settings, scheme, palette) {
+  classicRoot.render(R(Ze.StrictMode, {
+    children: R(H9, { settings, palette, scheme, children: R(K9, { children: R(ree, {}) }) }),
+  }));
+}

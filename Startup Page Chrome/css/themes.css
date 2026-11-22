@@ -1,0 +1,385 @@
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("../fonts/woff2/JetBrainsMono-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("../fonts/woff2/JetBrainsMono-Medium.woff2") format("woff2");
+  font-weight: 500 700;
+  font-display: swap;
+}
+
+:root {
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-body: system-ui, sans-serif;
+  --font-display: var(--font-body);
+}
+:root[data-theme="pixel"] {
+  --font-mono: var(--pixel-type);
+  --font-body: var(--pixel-type);
+}
+:root[data-theme="pixel"] .smooth-icon,
+:root:not([data-theme="pixel"]) .pixel-icon {
+  display: none !important;
+}
+
+/* Use the original smooth controls across the non-pixel styles. */
+@scope (:root:not([data-theme="pixel"])) to (#root) {
+body {
+  .wordmark { font: 600 16px/1 var(--font-body); letter-spacing: -.035em; }
+  .brand-mark::before {
+    width: 8px;
+    height: 8px;
+    background: none;
+    clip-path: none;
+    border: solid currentColor;
+    border-width: 2px 2px 0 0;
+    transform: translateX(-1px) rotate(45deg);
+  }
+  #clock-time {
+    font: 400 clamp(60px, 8vw, 104px)/1.15 var(--font-display);
+    letter-spacing: -.065em;
+    font-variant-numeric: tabular-nums;
+  }
+  h1 { font: 500 clamp(18px, 2vw, 25px)/1.4 var(--font-display); letter-spacing: -.035em; }
+  button, .brand-mark, #results li { border-radius: var(--control-radius, 6px); }
+  #search-form, #results, .tile, #notice { border-radius: var(--surface-radius, 10px); }
+  dialog { border-radius: var(--dialog-radius, 14px); box-shadow: 0 16px 55px #0003; }
+  #results { box-shadow: 0 8px 20px #0002; }
+  kbd, .enter { border-radius: var(--control-radius, 4px); }
+  input:not([type="checkbox"]), select, textarea { border-radius: var(--control-radius, 6px); }
+  .check input { appearance: auto; accent-color: var(--accent); }
+  .check input:checked::before, .control:has(select)::after { content: none; }
+  .control select { appearance: auto; padding-inline-end: 6px; }
+  summary { list-style: revert; }
+  summary::before, details[open] > summary::before { content: none; }
+  .tile-label { font-family: var(--font-body); }
+  .modal-head h2 { font-family: var(--font-display); }
+}
+}
+
+:root[data-theme="editorial"] {
+  --font-body: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --font-mono: var(--font-body);
+  --paper: #211d1a;
+  --panel: #2b2521;
+  --field: #302925;
+  --ink: #f3e9db;
+  --muted: #c1afa0;
+  --line: #51453e;
+  --accent: #f2aa84;
+  --accent-ink: #302017;
+  --control-radius: 3px;
+  --surface-radius: 3px;
+  --dialog-radius: 5px;
+}
+:root[data-theme="editorial"][data-color-scheme="light"] {
+  --paper: #f8f2e8;
+  --panel: #fffaf2;
+  --field: #fffcf7;
+  --ink: #322820;
+  --muted: #705e50;
+  --line: #c9b9a9;
+  --accent: #95492e;
+  --accent-ink: #fff8f1;
+}
+:root[data-theme="editorial"] {
+  .wordmark, .tile-label { font-family: var(--font-display); }
+  .tile-label { font-size: 15px; }
+  .tile {
+    border-width: 1px 0 0;
+    border-radius: 0;
+    background: var(--tile-bg, transparent);
+    padding-inline: 2px;
+  }
+}
+
+:root[data-theme="terminal"] {
+  --font-body: var(--font-mono);
+  --paper: #101916;
+  --panel: #16221c;
+  --field: #19281f;
+  --ink: #d9efdf;
+  --muted: #9ab5a3;
+  --line: #354d3d;
+  --accent: #99e3ac;
+  --accent-ink: #15281c;
+  --control-radius: 0;
+  --surface-radius: 0;
+  --dialog-radius: 0;
+}
+:root[data-theme="terminal"][data-color-scheme="light"] {
+  --paper: #edf5ee;
+  --panel: #f9fdf9;
+  --field: #f4faf4;
+  --ink: #192f21;
+  --muted: #496452;
+  --line: #b5cbb9;
+  --accent: #1a6940;
+  --accent-ink: #fff;
+}
+:root[data-theme="terminal"] {
+  #clock-time { color: var(--date-ink, var(--accent)); }
+  .tile { border-inline-start: 2px solid var(--accent); }
+}
+
+/* Classic owns its palette. Its launcher and greeting follow the chosen type. */
+:root:is([data-theme="editorial"], [data-theme="terminal"], [data-theme="glass"]) .classic {
+  --font: var(--font-display);
+
+}
+
+:root[data-theme="glass"] {
+  --font-body: "Avenir Next", "Trebuchet MS", "DejaVu Sans", sans-serif;
+  --font-mono: var(--font-body);
+  --paper: #111b2b;
+  --ink: #eff8ff;
+  --muted: #b1c5d7;
+  --accent: #92e1df;
+  --accent-ink: #0b2a30;
+  --panel: rgb(31 50 68 / 82%);
+  --field: rgb(38 61 78 / 66%);
+  --line: rgb(192 226 239 / 29%);
+  --aura: radial-gradient(ellipse at 14% 33%, #24616a99, transparent 47%),
+    radial-gradient(ellipse at 87% 69%, #54519099, transparent 48%);
+  --control-radius: 9px;
+  --surface-radius: 14px;
+  --dialog-radius: 18px;
+}
+:root[data-theme="glass"][data-color-scheme="light"] {
+  --paper: #e4eef4;
+  --ink: #172e42;
+  --muted: #445c6b;
+  --accent: #126368;
+  --accent-ink: #fff;
+  --panel: rgb(251 254 255 / 76%);
+  --field: rgb(255 255 255 / 51%);
+  --line: rgb(60 92 117 / 30%);
+  --aura: radial-gradient(ellipse at 14% 33%, #8fd9cdba, transparent 47%),
+    radial-gradient(ellipse at 87% 69%, #b9b1eabe, transparent 48%);
+}
+:root[data-theme="glass"] {
+  background-image: var(--aura);
+  background-attachment: fixed;
+}
+@media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+  :root[data-theme="glass"] {
+    --panel: var(--paper);
+    --field: var(--paper);
+    --aura: none;
+  }
+}
+
+/* Window details are decorative. The existing launch and settings controls stay interactive. */
+:root[data-theme="mac-terminal"] {
+  --font-mono: Menlo, Monaco, "Courier New", monospace;
+  --font-body: var(--font-mono);
+  --paper: #191a1e;
+  --panel: #292a30;
+  --field: #232429;
+  --ink: #f2f0f5;
+  --muted: #afaeb9;
+  --line: #44444d;
+  --accent: #a6ddbc;
+  --accent-ink: #15231a;
+}
+/* Cover native controls, theme samples and the separately styled Classic launcher. */
+:root[data-theme="mac-terminal"],
+:root[data-theme="mac-terminal"] :where(*, *::before, *::after) {
+  font-family: var(--font-mono) !important;
+}
+:root[data-theme="mac-terminal"][data-color-scheme="light"] {
+  --paper: #f8f8fa;
+  --panel: #e6e6eb;
+  --field: #fff;
+  --ink: #242329;
+  --muted: #5e5e68;
+  --line: #bdbdc7;
+  --accent: #266647;
+  --accent-ink: #fff;
+}
+:root[data-theme="mac-terminal"] body:has(#brand-backdrop[hidden]) header.bar {
+  margin: 0;
+  min-height: 46px;
+  padding-inline: 18px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+}
+.prompt-shell,
+:root[data-theme="mac-terminal"] .prompt-chevron { display: none; }
+:root[data-theme="mac-terminal"] .prompt-shell { display: inline; }
+:root[data-theme="mac-terminal"] body:has(#brand-backdrop[hidden]) #search-form {
+  column-gap: 1ch;
+  font: 400 14px var(--font-mono);
+  .prompt, #query { font: inherit; }
+  .prompt { white-space: nowrap; }
+}
+.mac-lights, :root[data-theme="mac-terminal"] body:has(#brand-backdrop[hidden]) .wordmark::before,
+:root[data-theme="mac-terminal"] .classic-page::before {
+  content: "";
+  display: inline-block;
+  width: 52px;
+  height: 16px;
+  background: radial-gradient(circle at 6px 50%, #ff6058 5.5px, transparent 6px),
+    radial-gradient(circle at 24px 50%, #ffbd2e 5.5px, transparent 6px),
+    radial-gradient(circle at 42px 50%, #28c840 5.5px, transparent 6px);
+}
+.mac-lights { align-self: center; }
+:root[data-theme="mac-terminal"] body:has(#brand-backdrop[hidden]) .brand-mark { display: none; }
+:root[data-theme="mac-terminal"] .classic-page::before {
+  position: fixed;
+  inset: 18px auto auto 18px;
+  z-index: 2;
+  pointer-events: none;
+}
+:root:is([data-theme="mac-terminal"],[data-theme="vintage-windows"]) .classic { --font: var(--font-body); }
+
+:root[data-theme="vintage-windows"] {
+  --font-body: Verdana, Tahoma, "DejaVu Sans", sans-serif;
+  --font-mono: var(--font-body);
+  --paper: #11474a;
+  --panel: #323d40;
+  --field: #232c30;
+  --ink: #f2f1df;
+  --muted: #c6d3cc;
+  --line: #738780;
+  --accent: #a3efdc;
+  --accent-ink: #182e2b;
+  --control-radius: 0px;
+  --window-edge: #101819;
+  --window-light: #717c7c;
+  --folder: #d3ae68;
+  --folder-light: #f8e3a3;
+  --title: #173033;
+  --title-ink: #eef4e9;
+}
+:root[data-theme="vintage-windows"][data-color-scheme="light"] {
+  --paper: #16a6ab;
+  --window-light: #faf8ed;
+  --title: #c7c9bf;
+  --title-ink: #182322;
+  --folder: #dfbf79;
+  --folder-light: #fff1b9;
+  --panel: #d2d1ce;
+  --field: #e3e2dd;
+  --ink: #151b1c;
+  --muted: #233739;
+  --line: #465556;
+  --accent: #083e44;
+  --accent-ink: #fff;
+}
+/* Two staggered desktop windows share the same title strip and raised edge. */
+:root[data-theme="vintage-windows"] body:has(#brand-backdrop[hidden]) {
+  --stripes: repeating-linear-gradient(to bottom, currentColor 0 1px, transparent 1px 3px);
+  --raised: inset 1px 1px var(--window-light), inset -1px -1px #151d1d77;
+  #desk { width: min(850px, calc(100% - 36px)); }
+  .hero, #search, .favorites, .widget {
+    background: var(--panel);
+    border: 1px solid var(--window-edge);
+    box-shadow: var(--raised), 4px 4px #0c28287a;
+  }
+  .hero, #search { margin-inline-end: clamp(0px, 6vw, 88px); }
+  .hero {
+    position: relative;
+    padding: 46px clamp(14px, 3vw, 32px) 18px;
+    margin-bottom: 0;
+    border-bottom: 0;
+  }
+  .hero::before, .section-heading, .widget header {
+    background-color: var(--title);
+    color: var(--title-ink);
+    border-bottom: 1px solid var(--window-edge);
+  }
+  .hero::before {
+    content: "";
+    position: absolute;
+    inset: 3px 3px auto;
+    height: 24px;
+    background-image: var(--stripes);
+    background-size: calc(100% - 16px) 10px;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  #date {
+    position: absolute;
+    inset: 4px auto auto 12px;
+    background: var(--title);
+    color: var(--title-ink);
+    padding: 2px 8px;
+    font: bold 12px/19px var(--font-body);
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  #clock-time { font-weight: 700; font-size: clamp(44px, 6vw, 78px); }
+  #greeting { font-size: clamp(16px, 1.6vw, 20px); letter-spacing: -.025em; }
+  #landscape { background: var(--field); padding: 6px; border: 1px inset var(--line); }
+  #search { padding: 9px; }
+  #search-form {
+    padding-inline: 12px;
+    height: 40px;
+    background: var(--field);
+    border: 1px solid var(--line);
+    border-radius: 0;
+    box-shadow: inset 1px 1px var(--window-edge);
+  }
+  .favorites { margin: 26px 0 0 clamp(0px, 7vw, 100px); padding: 3px; }
+  .section-heading, .widget header { padding: 3px 8px; gap: 8px; }
+  .section-heading { margin: 0; }
+  #pinned-heading { font: bold 12px var(--font-body); text-transform: none; letter-spacing: 0; color: inherit; }
+  .section-heading::before {
+    content: "";
+    flex: 1;
+    height: 10px;
+    background: var(--stripes);
+    order: 1;
+  }
+  #browse { order: 2; color: inherit; }
+  #pins { padding: 16px 7px 10px; gap: 4px; }
+  .tile { align-items: center; justify-content: flex-start; gap: 7px; padding: 6px 2px; }
+  .tile-label { white-space: normal; overflow-wrap: anywhere; text-align: center; padding: 1px 3px; }
+  .tile:is(:hover,:focus-visible) .tile-label { background: var(--ink); color: var(--panel); }
+  .widget header { margin: -10px -10px 0; }
+}
+@media (max-width: 640px) {
+  :root[data-theme="vintage-windows"] body:has(#brand-backdrop[hidden]) :is(.hero,#search,.favorites) { margin-inline: 0; }
+}
+.vintage-folder, :root[data-theme="vintage-windows"] .tile .site-icon {
+  display: inline-grid;
+  place-items: center;
+  position: relative;
+  width: 45px;
+  height: 28px;
+  margin-top: 6px;
+  color: #322c21;
+  background: var(--folder, #dfbf79);
+  border: 1px solid currentColor;
+  box-shadow: inset 1px 1px var(--folder-light, #fff1b9), 2px 2px #17252570;
+}
+.vintage-folder::before, :root[data-theme="vintage-windows"] .tile .site-icon::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: -1px;
+  width: 17px;
+  height: 5px;
+  border: 1px solid currentColor;
+  border-bottom: 0;
+  background: var(--folder-light, #fff1b9);
+}
+:root[data-theme="vintage-windows"] .tile .smooth-icon { width: 15px; height: 15px; }
+:root[data-theme="vintage-windows"] .classic-readout {
+  padding: 15px 12px 6px;
+  background: var(--panel);
+  border: 1px solid var(--window-edge);
+  box-shadow: 3px 3px var(--window-edge);
+}
+:root[data-theme="vintage-windows"] .classic-readout::before {
+  content: "";
+  position: absolute;
+  inset: 3px 5px auto;
+  height: 6px;
+  background: repeating-linear-gradient(to bottom, var(--muted) 0 1px, transparent 1px 3px);
+}
+:root[data-theme="vintage-windows"] .classic-readout:has(#classic-greeting[hidden]):has(#weather[hidden]) { display: none; }

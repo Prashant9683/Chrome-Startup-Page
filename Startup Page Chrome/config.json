@@ -1,7 +1,8 @@
 {
   "layout": "desk",
-  "theme": "dark",
-  "title": "Startpage",
+  "visualTheme": "pixel",
+  "colorScheme": "dark",
+  "title": "Startpage by Prashant Gehlot",
   "user": "Prashant",
   "message": "",
   "timeZone": "",

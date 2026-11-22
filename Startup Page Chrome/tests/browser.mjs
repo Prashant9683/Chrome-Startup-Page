@@ -1,3 +1,4 @@
+import { homepageChecks } from "./homepage-browser.mjs";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { createRequire } from "node:module";
@@ -89,8 +90,34 @@ async function shot(name) {
     path: path.join(process.env.SCREENSHOT_DIR, name + ".png"),
   });
 }
+async function checkPixelType(selectors) {
+  const result = await page.evaluate(async (selectors) => {
+    await document.fonts.ready;
+    return {
+      loaded: [...document.fonts].some(
+        (face) => face.family === "Departure Mono" && face.status === "loaded",
+      ),
+      families: selectors.map(
+        (selector) =>
+          getComputedStyle(document.querySelector(selector)).fontFamily,
+      ),
+    };
+  }, selectors);
+  assert.ok(result.loaded, "bundled pixel face is available offline");
+  result.families.forEach((family, i) =>
+    assert.match(family, /^"Departure Mono"/, selectors[i]),
+  );
+}
 async function openSettings() {
   await button("Open settings").click();
+}
+async function section(name) {
+  const nav = get("#settings-nav");
+  if (!(await nav.isVisible())) await get("#all-settings").click();
+  await nav.getByRole("button", {name, exact:true}).click();
+}
+async function choose(name, value) {
+  await get('#settings input[name="' + name + '"][value="' + value + '"]').check();
 }
 async function save() {
   await button("Save settings").click();
@@ -114,15 +141,141 @@ try {
         await page.evaluate(() => location.protocol),
         "chrome-extension:",
       );
-      assert.equal(await page.title(), "Startpage");
+      const installed = await page.evaluate(() => ({
+        id: chrome.runtime.id,
+        host: location.hostname,
+        name: chrome.runtime.getManifest().name,
+        author: chrome.runtime.getManifest().author,
+      }));
+      assert.equal(installed.id, installed.host);
+      assert.equal(installed.author, "Prashant Gehlot");
+      assert.equal(installed.name, "Startpage by Prashant Gehlot");
+      assert.equal(await page.title(), installed.name);
+      console.log("Installed extension ID", installed.id);
       assert.equal(await get("#pins a").count(), 6);
       assert.equal(await get("#weather").isVisible(), false);
       assert.equal(external.length, 0);
-      await page.evaluate(() => document.fonts.ready);
+      await checkPixelType([
+        ".wordmark",
+        "#clock-time",
+        "#greeting",
+        "#query",
+        ".tile-label",
+        "kbd",
+      ]);
+      assert.equal(
+        await get("#pins svg[shape-rendering=crispEdges]").count(),
+        6,
+      );
+      assert.ok(
+        await get("#preferences svg[shape-rendering=crispEdges]").count(),
+      );
+      assert.equal(await get("footer.bar .credit").count(), 0);
+      for (const selector of ["header.bar", "#search-form", ".tile", "footer.bar"]) {
+        const style = await get(selector).first().evaluate(el => {
+          const css = getComputedStyle(el);
+          return [css.borderWidth, css.backgroundColor, css.boxShadow];
+        });
+        assert.deepEqual(style, ["0px", "rgba(0, 0, 0, 0)", "none"], selector);
+      }
       await shot("desktop");
       await context.setOffline(false);
     },
   );
+  await homepageChecks({page, context, start, openSettings, section, choose, save, shot, check});
+  await check("themes and color schemes switch independently and persist", async () => {
+    const root = get("html");
+    await openSettings();
+    await section("Appearance");
+    assert.equal(await get("[name=visualTheme]:checked").inputValue(), "pixel");
+    assert.equal(await get("[name=colorScheme]:checked").inputValue(), "dark");
+    await choose("visualTheme", "editorial");
+    await choose("colorScheme", "light");
+    await button("Cancel").click();
+    assert.equal(await root.getAttribute("data-theme"), "pixel");
+    assert.equal(await root.getAttribute("data-color-scheme"), "dark");
+    for (const style of ["original", "editorial", "terminal", "mac-terminal", "vintage-windows", "glass", "pixel"]) {
+      const papers = [];
+      for (const mode of ["light", "dark"]) {
+        await openSettings();
+        await section("Appearance");
+        await choose("visualTheme", style);
+        await choose("colorScheme", mode);
+        await save();
+        assert.equal(await root.getAttribute("data-theme"), style);
+        assert.equal(await root.getAttribute("data-color-scheme"), mode);
+        papers.push(await root.evaluate(el => getComputedStyle(el).backgroundColor));
+        assert.equal(await get(".prompt-shell").isVisible(), style === "mac-terminal");
+        assert.equal(await get(".prompt-chevron").isVisible(), style !== "mac-terminal");
+        if (style === "mac-terminal") {
+          assert.equal(await get(".prompt-shell").innerText(), "user@macbook ~ %");
+          const families = await page.locator(
+            "#query, #clock-time, #greeting, .wordmark, .tile-label, footer kbd, #home-notes, #settings .type-sample, #settings button",
+          ).evaluateAll(elements => elements.map(el => getComputedStyle(el).fontFamily));
+          for (const family of families) assert.match(family, /^Menlo\b/);
+        }
+        const pixel = style === "pixel";
+        assert.equal(await get("#preferences .pixel-icon").isVisible(), pixel);
+        assert.equal(await get("#pins .smooth-icon:visible").count(), pixel ? 0 : 6);
+        const clock = await get("#clock-time").evaluate(el => {
+          const css = getComputedStyle(el);
+          return { font: css.fontFamily, mask: css.maskImage };
+        });
+        assert.match(clock.font, {
+          "mac-terminal": /Menlo/, "vintage-windows": /Verdana/,
+          glass: /Avenir Next/, original: /system-ui/, editorial: /Georgia/, terminal: /JetBrains Mono/, pixel: /Departure Mono/,
+        }[style]);
+        assert.equal(clock.mask !== "none", pixel);
+        if (style === "glass") {
+          assert.equal(await get("#search-form").evaluate(el => getComputedStyle(el).backdropFilter), "none");
+        }
+        await shot("theme-" + style + "-" + mode);
+      }
+      assert.notEqual(papers[0], papers[1]);
+      await get("#query").fill("spoti");
+      assert.match(await get(".brand-plane > div").first().textContent(), /SPOTIFY/);
+      assert.equal(await get("#results").evaluate(el => getComputedStyle(el).boxShadow), "none");
+      await get("#query").fill("");
+    }
+    await page.emulateMedia({ colorScheme: "light" });
+    await openSettings();
+    await section("Appearance");
+    await choose("visualTheme", "editorial");
+    await choose("colorScheme", "system");
+    await save();
+    await start();
+    const other = await context.newPage();
+    await start(other);
+    assert.equal(await other.locator("html").getAttribute("data-theme"), "editorial");
+    assert.equal(await root.getAttribute("data-color-scheme"), "light");
+    assert.equal(await root.getAttribute("data-theme"), "editorial");
+    await page.emulateMedia({ colorScheme: "dark" });
+    await get('html[data-theme="editorial"][data-color-scheme="dark"]').waitFor();
+    await openSettings();
+    await section("Appearance");
+    assert.equal(await get("[name=colorScheme]:checked").inputValue(), "system");
+    await choose("visualTheme", "pixel");
+    await choose("colorScheme", "dark");
+    await save();
+    await other.locator('html[data-theme="pixel"][data-color-scheme="dark"]').waitFor();
+    await other.close();
+    await page.emulateMedia({ colorScheme: null });
+  });
+  await check("both footer shortcuts open the library from an active search", async () => {
+    assert.deepEqual(await get("#library-key kbd").allTextContents(), ["Ctrl+K", "⌘K"]);
+    for (const chord of ["Control+k", "Meta+k", "Alt+k"]) {
+      await get("#query").fill("spo");
+      await page.keyboard.press(chord);
+      await get("#library[open]").waitFor();
+      assert.equal(await get("#library-query").evaluate(el => el === document.activeElement), true);
+      await page.keyboard.press("Escape");
+      assert.equal(await get("#query").inputValue(), "spo");
+    }
+    await get("#query").fill("");
+    await get("#focus-search").focus();
+    await page.keyboard.press("/");
+    assert.equal(await get("#query").evaluate(el => el === document.activeElement), true);
+  });
   await check(
     "typing from the page, local suggestions and the selected keyboard result",
     async () => {
@@ -213,6 +366,12 @@ try {
         await input.evaluate((el) => getComputedStyle(el).color),
         "rgb(0, 0, 0)",
       );
+      await checkPixelType([
+        "#query",
+        "#brand-greeting",
+        ".brand-plane > div",
+        "#results li",
+      ]);
       await shot("spotify");
       await page.setViewportSize({ width: 360, height: 740 });
       await shot("spotify-narrow");
@@ -312,33 +471,30 @@ try {
         await get("#results [aria-selected=true]").innerText(),
         /Search for “spoti”/,
       );
-      assert.match(await row.textContent(), /GOOGLE SEARCH/);
+      assert.match(await row.textContent(), /GOOGLE/);
       await input.press("ArrowUp");
       assert.match(await row.textContent(), /SPOTIFY/);
       await input.pressSequentially("q");
       assert.equal(await input.inputValue(), "spotiq");
-      assert.ok((await row.textContent()).match(/GOOGLE SEARCH/g).length > 1);
+      assert.ok((await row.textContent()).match(/GOOGLE/g).length > 1);
       assert.equal(
         await row.evaluate((el) => getComputedStyle(el).animationName),
         "wordmark-drift",
       );
-      const background = await layer.evaluate(
-        (el) => getComputedStyle(el).backgroundImage,
-      );
-      for (const color of [
-        "66, 133, 244",
-        "234, 67, 53",
-        "251, 188, 4",
-        "52, 168, 83",
-      ])
-        assert.ok(background.includes(color), color);
+      const colors = await layer.evaluate(el => ({
+        image: getComputedStyle(el).backgroundImage,
+        scene: getComputedStyle(el).backgroundColor,
+        theme: getComputedStyle(document.documentElement).backgroundColor,
+      }));
+      assert.equal(colors.image, "none");
+      assert.equal(colors.scene, colors.theme);
       assert.equal(await get(".hero").isVisible(), false);
       assert.equal(await get("#brand-greeting").isVisible(), true);
       await shot("google-search");
       await input.press("Backspace");
       assert.match(await row.textContent(), /SPOTIFY/);
       await input.fill("a quiet cafe near me");
-      assert.match(await row.textContent(), /GOOGLE SEARCH/);
+      assert.match(await row.textContent(), /GOOGLE/);
       await page.emulateMedia({ reducedMotion: "reduce" });
       assert.equal(
         await row.evaluate((el) => getComputedStyle(el).animationName),
@@ -385,7 +541,7 @@ try {
         ["yt", "Control+Enter", "https://www.google.com/search?q=yt"],
         ["spoti", "Meta+Enter", "https://www.google.com/search?q=spoti"],
         ["  SPOTIF  ", "Enter", "https://open.spotify.com/"],
-        ["netfl", "Enter", "https://media.netflix.com/"],
+        ["netfl", "Enter", "https://www.netflix.com/"],
         ["g/OpenAI/project", "Enter", "https://github.com/OpenAI/project"],
         ["example.org/path", "Enter", "https://example.org/path"],
       ]) {
@@ -404,6 +560,29 @@ try {
       const other = await context.newPage();
       await start(other);
       await openSettings();
+      await checkPixelType([
+        "#settings-title",
+        "#settings label",
+        "#settings input",
+        "#settings select",
+        "#config-text",
+        "#settings button",
+      ]);
+      assert.equal(await get("#settings .modal-foot .credit").innerText(), "Made with ❤️ by Prashant Gehlot");
+      for (const selector of ["#settings-nav button", "#settings [data-page=general] .setting-row"]) {
+        assert.equal(await get(selector).first().evaluate(el => getComputedStyle(el).borderBottomWidth), "1px");
+      }
+      const greetingSwitch = page.getByRole("switch", { name: "Show greeting" });
+      await greetingSwitch.focus();
+      const knobPosition = () => greetingSwitch.evaluate(el => getComputedStyle(el, "::before").transform);
+      assert.equal(await greetingSwitch.isChecked(), true);
+      const onPosition = await knobPosition();
+      assert.notEqual(onPosition, "none");
+      await page.keyboard.press("Space");
+      assert.equal(await greetingSwitch.isChecked(), false);
+      assert.notEqual(await knobPosition(), onPosition);
+      await page.keyboard.press("Space");
+      await shot("settings");
       await page
         .getByRole("textbox", { name: "Name", exact: true })
         .fill("Discard");
@@ -413,20 +592,24 @@ try {
       await page
         .getByRole("textbox", { name: "Name", exact: true })
         .fill("Sam");
+      await section("Clock & weather");
       await page.getByLabel("Time zone", { exact: true }).fill("Invalid/Zone");
+      await section("General");
       await button("Save settings").click();
       assert.match(await get("#settings-status").innerText(), /time zone/);
       await page.getByLabel("Time zone", { exact: true }).fill("Asia/Kolkata");
+      await section("Search & shortcuts");
       await page
         .getByLabel("Search engine", { exact: true })
         .selectOption("Brave");
-      await page.getByLabel("Theme", { exact: true }).selectOption("light");
+      await section("Appearance");
+      await choose("colorScheme", "light");
       await save();
       await other.waitForFunction(() =>
         document.querySelector("#greeting")?.textContent.includes("Sam"),
       );
       assert.equal(
-        await page.locator("html").getAttribute("data-theme"),
+        await page.locator("html").getAttribute("data-color-scheme"),
         "light",
       );
       await start();
@@ -434,7 +617,7 @@ try {
       await get("#query").fill("a quiet cafe");
       assert.match(
         await get(".brand-plane > div").first().textContent(),
-        /GOOGLE SEARCH/,
+        /GOOGLE/,
       );
       await Promise.all([
         page.waitForURL("https://search.brave.com/search?q=a%20quiet%20cafe"),
@@ -448,6 +631,13 @@ try {
     "library filtering, pin toggles, custom shortcut and popup target",
     async () => {
       await openLibrary();
+      await checkPixelType([
+        "#library-title",
+        "#library-query",
+        ".library-row",
+        ".pin-toggle",
+      ]);
+      await shot("library");
       await get("#library-query").fill("GitHub");
       await button("Unpin GitHub").click();
       await button("Pin GitHub").waitFor();
@@ -472,6 +662,7 @@ try {
         0,
       );
       await openSettings();
+      await section("Search & shortcuts");
       await page.getByLabel("Open shortcuts in a new tab").check();
       await save();
       const [popup] = await Promise.all([
@@ -486,7 +677,7 @@ try {
     "export, rejected import, preview, cancellation and legacy JSON import",
     async () => {
       await openSettings();
-      await get("#advanced summary").click();
+      await section("Data & backups");
       const [download] = await Promise.all([
         page.waitForEvent("download"),
         button("Export JSON").click(),
@@ -495,6 +686,8 @@ try {
         await readFile(await download.path(), "utf8"),
       );
       assert.equal(exported.user, "Sam");
+      assert.equal(exported.visualTheme, "pixel");
+      assert.equal(exported.colorScheme, "light");
       assert.ok(exported.squares.find((group) => group.name === "Personal"));
       async function upload(json) {
         await get("#import-file").setInputFiles({
@@ -510,13 +703,15 @@ try {
           .textContent.includes("Import failed"),
       );
       assert.equal(
-        await page
-          .getByRole("textbox", { name: "Name", exact: true })
-          .inputValue(),
+        await get("[name=user]").inputValue(),
         "Sam",
       );
+      // Simulate a backup created before appearance and scheme were separated.
+      delete exported.visualTheme;
+      delete exported.colorScheme;
       const backup = JSON.stringify({
         ...exported,
+        theme: "dark",
         user: "Imported",
         timeZone: "India/Kolkata",
         quickLinks: { w: { URL: "https://example.org", Search: "/?find=" } },
@@ -528,7 +723,7 @@ try {
       await button("Cancel").click();
       assert.match(await get("#greeting").innerText(), /Sam/);
       await openSettings();
-      await get("#advanced summary").click();
+      await section("Data & backups");
       await upload(backup);
       await page.waitForFunction(
         () => document.querySelector("[name=user]").value === "Imported",
@@ -536,6 +731,8 @@ try {
       await save();
       await start();
       assert.match(await get("#greeting").innerText(), /Imported/);
+      assert.equal(await get("html").getAttribute("data-theme"), "pixel");
+      assert.equal(await get("html").getAttribute("data-color-scheme"), "dark");
       assert.equal(await get("#zone").innerText(), "Asia/Kolkata");
       await get("#query").fill("w'fish & chips");
       await Promise.all([
@@ -566,7 +763,7 @@ try {
     "storage quota error keeps the form open and the last configuration intact",
     async () => {
       await openSettings();
-      await get("#advanced summary").click();
+      await section("Data & backups");
       const draft = JSON.parse(await get("#config-text").inputValue());
       draft.message = "x".repeat(9000);
       await get("#config-text").fill(JSON.stringify(draft));
@@ -591,6 +788,7 @@ try {
     "enabled weather, fresh cache, stale offline observation and unavailable city",
     async () => {
       await openSettings();
+      await section("Clock & weather");
       await page.getByLabel("Show weather").check();
       await page.getByLabel("City", { exact: true }).fill("Berlin");
       await save();
@@ -611,10 +809,12 @@ try {
         .getByText(/cached/)
         .waitFor();
       await openSettings();
+      await section("Clock & weather");
       await page.getByLabel("City", { exact: true }).fill("Oslo");
       await save();
       await get("#weather").getByText("Weather unavailable").waitFor();
       await openSettings();
+      await section("Clock & weather");
       await page.getByLabel("Show weather").uncheck();
       await save();
     },
@@ -640,7 +840,7 @@ try {
       await page.keyboard.press("Escape");
       await get("#library").waitFor({ state: "hidden" });
       await openSettings();
-      await get("#advanced summary").click();
+      await section("Data & backups");
       assert.equal(
         await page.evaluate(
           () =>
@@ -703,10 +903,11 @@ try {
       await button("Close shortcuts").click();
       await page.keyboard.press("Control+,");
       assert.equal(
-        await page.getByLabel("Theme", { exact: true }).inputValue(),
+        await get("[name=colorScheme]:checked").inputValue(),
         "custom",
       );
-      await page.getByLabel("Theme", { exact: true }).selectOption("light");
+      await section("Appearance");
+      await choose("colorScheme", "light");
       await save();
       assert.notEqual(
         await get("#greeting").evaluate((el) => getComputedStyle(el).color),
@@ -720,11 +921,10 @@ try {
     },
   );
   await check(
-    "classic layout, offline suggestions, original settings, return and corrupt local records",
+    "classic launcher, shared settings, local Chevron options and switching layouts",
     async () => {
       await openSettings();
-      await get("#advanced summary").click();
-      await page.getByLabel("New-tab layout").selectOption("classic");
+      await choose("layout", "classic");
       await Promise.all([
         page.waitForURL("**/classic.html"),
         button("Save settings").click(),
@@ -733,6 +933,11 @@ try {
       await page.waitForFunction(() =>
         document.activeElement?.matches("#root .app input"),
       );
+      await checkPixelType([
+        "#classic-greeting",
+        "#root .app input",
+      ]);
+      await shot("classic");
       await classicInput.pressSequentially("git");
       await page.waitForFunction(() =>
         document
@@ -741,9 +946,60 @@ try {
           .includes("github"),
       );
       await page.keyboard.press("Escape");
-      await button("Classic settings").click();
-      await button("Reset settings").waitFor();
+      await openSettings();
+      assert.equal(await get("[name=layout]:checked").inputValue(), "classic");
+      assert.equal(await get("a.desk-return").count(), 0);
+      assert.equal(await get(".classic-footer").count(), 0);
+      assert.equal(await get("#settings .modal-foot .credit").innerText(), "Made with ❤️ by Prashant Gehlot");
+      await page.getByLabel("Name", { exact: true }).pressSequentially("Discard");
+      await choose("layout", "desk");
+      await button("Cancel").click();
+      assert.equal(await classicInput.inputValue(), "");
+      await page.keyboard.press("Meta+,");
+      assert.equal(await get("[name=layout]:checked").inputValue(), "classic");
+      await section("Appearance");
+      await choose("visualTheme", "glass");
+      await section("Appearance");
+      await choose("colorScheme", "light");
+      await save();
+      await openSettings();
+      assert.equal(await get("html").getAttribute("data-color-scheme"), "light");
+      assert.equal(await get("#settings").evaluate(el => getComputedStyle(el).borderWidth), "0px");
+      await shot("classic-settings");
+      await section("Appearance");
+      await choose("colorScheme", "dark");
+      await save();
+      await get('body[data-color-scheme="dark"]').waitFor();
+      assert.match(await get(".app").evaluate(el => getComputedStyle(el).backgroundImage), /gradient/);
+      await openSettings();
+      await section("Clock & weather");
+      await page.getByLabel("Show weather").check();
+      await page.getByLabel("City", { exact: true }).fill("Berlin");
+      await save();
+      await get(".classic-readout #weather").waitFor();
+      assert.match(await get("#weather").innerText(), /18°C/);
+      await openSettings();
+      await section("Clock & weather");
+      await page.getByLabel("Show weather").uncheck();
+      await save();
+      assert.equal(await get("#weather").isVisible(), false);
+      await classicInput.fill("--settings");
+      await classicInput.press("Enter");
+      await get("#settings[open]").waitFor();
+      await button("Cancel").click();
       await page.reload();
+      const requestsBefore = external.length;
+      await classicInput.fill("10 usd to eur");
+      await classicInput.press("Space");
+      await classicInput.press("Space");
+      await page.waitForTimeout(400);
+      assert.equal(external.length, requestsBefore);
+      await classicInput.press("Escape");
+      await openSettings();
+      await section("Online tools");
+      await page.getByRole("switch", { name: "Live currency conversions", exact: true }).check();
+      await page.getByLabel("Enable AI chat", {exact:true}).check();
+      await save();
       await classicInput.fill("10 usd to eur");
       await page.getByText("9.1 EUR", { exact: true }).waitFor();
       await classicInput.press("Escape");
@@ -754,11 +1010,46 @@ try {
       assert.ok(
         !external.some((url) => url.startsWith("https://api.openai.com")),
       );
+      await openSettings();
+      const findSetting = get("#find-setting");
+      await findSetting.fill("tab title");
+      await page.getByLabel("Tab title", {exact:true}).fill("My Chevron");
+      await findSetting.fill("missing-setting-xyz");
+      assert.match(await get("#settings-matches").innerText(), /No matching/);
+      await findSetting.press("Escape");
+      assert.equal(await findSetting.inputValue(), "");
+      await findSetting.fill("api key");
+      await findSetting.press("Enter");
+      assert.ok(await page.getByLabel("API key",{exact:true}).evaluate(el => document.activeElement === el));
+      await page.getByLabel("API key", {exact:true}).fill("fixture-only");
+      await findSetting.fill("fixture-only");
+      assert.match(await get("#settings-matches").innerText(), /No matching/);
+      await section("Launcher colors");
+      await button("Dark palette").click();
+      const darkColors = get('.color-sheet:visible');
+      await darkColors.getByLabel("Accent", {exact:true}).fill("#112233");
+      assert.equal(await darkColors.getByLabel("Command prefix", {exact:true}).inputValue(), "#112233");
+      await shot("classic-colors");
+      await save();
+      await openSettings();
+      await page.setViewportSize({width: 360, height: 640});
+      await section("Chevron launcher");
+      await get("#find-setting").fill("grid columns");
+      assert.equal(await page.getByLabel("Grid columns", {exact:true}).inputValue(), "4");
+      await page.getByLabel("Grid columns", {exact:true}).fill("7");
+      await shot("classic-settings-narrow");
+      await get("#find-setting").fill("reset");
+      await button("Restore Chevron defaults").click();
+      await button("Cancel").click();
+      await page.setViewportSize({width:1280,height:800});
+      await openSettings();
+      await section("Launcher colors");
+      await button("Dark palette").click();
+      assert.equal(await get(".color-sheet:visible").getByLabel("Accent",{exact:true}).inputValue(),"#112233");
+      await button("Cancel").click();
+      assert.equal(await page.title(), "My Chevron");
+      assert.ok(!JSON.stringify(await page.evaluate(() => chrome.storage.sync.get(null))).includes("fixture-only"));
       await page.evaluate(() => {
-        const data = JSON.parse(localStorage.getItem("settings"));
-        data.general.tabTitle = "My Chevron";
-        data.query.AI.apiKey = "fixture-only";
-        localStorage.setItem("settings", JSON.stringify(data));
         localStorage.setItem(
           "history",
           JSON.stringify([{ id: "old history entry", type: "query" }]),
@@ -774,7 +1065,9 @@ try {
       await classicInput.press("Space");
       await classicInput.press("Space");
       await page.getByText("Browser fixture reply", { exact: true }).waitFor();
-      await page.locator("a.desk-return").click();
+      await openSettings();
+      await choose("layout", "desk");
+      await Promise.all([page.waitForURL("**/index.html"), button("Save settings").click()]);
       await get("#desk:not([hidden])").waitFor();
       await page.evaluate(() => {
         localStorage.setItem("settings", "broken json");
@@ -796,7 +1089,9 @@ try {
         ),
         "{}",
       );
-      await page.locator(".desk-return").click();
+      await openSettings();
+      await choose("layout", "desk");
+      await Promise.all([page.waitForURL("**/index.html"), button("Save settings").click()]);
       await start();
     },
   );
@@ -852,7 +1147,7 @@ try {
       await timed.waitForFunction(() =>
         document
           .querySelector("#greeting")
-          .textContent.includes("call it a day"),
+          .textContent.includes("wind down"),
       );
       await timed.clock.runFor(1100);
       assert.equal(
@@ -876,6 +1171,11 @@ try {
         await timed.locator("#classic-greeting").innerText(),
         "Mira, it’s too late for another tab. Get some sleep.",
       );
+      const today = await timed.locator("#classic-greeting").innerText();
+      await timed.clock.fastForward(24 * 60 * 60 * 1000);
+      const tomorrow = await timed.locator("#classic-greeting").innerText();
+      assert.match(tomorrow, /^Mira, /);
+      assert.notEqual(tomorrow, today);
       await timed.evaluate(() =>
         chrome.storage.sync.set({ disableMessage: true }),
       );
@@ -937,7 +1237,8 @@ try {
                 }),
               );
               await chrome.storage.sync.set({
-                theme: "dark",
+                visualTheme: "pixel",
+                colorScheme: "dark",
                 disableWeather: false,
                 weatherConf: { location: "Berlin", unit: "cel" },
                 timeZone: "UTC",

@@ -120,3 +120,61 @@ export async function observation(
     throw error;
   }
 }
+
+// Both layouts display the same cached observation; the desk also draws its sky.
+export function weatherReadout(link, onUpdate = () => {}) {
+  let settings, key, timer, request;
+  async function refresh() {
+    clearTimeout(timer);
+    request?.abort();
+    if (
+      !settings ||
+      settings.disableWeather ||
+      !settings.weatherConf.location.trim()
+    )
+      return;
+    const controller = new AbortController();
+    request = controller;
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    let data;
+    try {
+      data = await observation(settings.weatherConf, {
+        signal: controller.signal,
+      });
+      if (controller !== request) return;
+      link.textContent = data.text + (data.stale ? " · cached" : "");
+      link.title =
+        data.place + " · Open-Meteo · " + new Date(data.at).toLocaleString();
+    } catch {
+      if (controller !== request) return;
+      link.textContent = "Weather unavailable";
+      link.title = "Weather by Open-Meteo";
+    } finally {
+      clearTimeout(timeout);
+    }
+    link.hidden = false;
+    onUpdate(data);
+    if (!document.hidden) {
+      const delay =
+        data && !data.stale
+          ? Math.max(1000, data.at + weatherRefreshMs - Date.now())
+          : weatherRefreshMs;
+      timer = setTimeout(refresh, delay);
+    }
+  }
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) clearTimeout(timer);
+    else refresh();
+  });
+  return (config) => {
+    const next = JSON.stringify([config.disableWeather, config.weatherConf]);
+    if (next === key) return;
+    key = next;
+    settings = config;
+    request?.abort();
+    request = undefined;
+    link.hidden = true;
+    onUpdate(undefined);
+    refresh();
+  };
+}

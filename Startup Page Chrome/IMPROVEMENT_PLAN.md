@@ -35,7 +35,7 @@ The old search field also obtained calculator suggestions from remote autocomple
 
 ## Delivered in 2.0.0
 
-The default page now loads approximately 81 KB of JavaScript from disk, including all shortcut definitions and icons. The original entry point referenced 2.25 MB. This is a 96.4% reduction in uncompressed JavaScript for the default tab. Both figures count the scripts and modules on the startup path and exclude fonts and CSS.
+The initial 2.0 desk loaded approximately 81 KB of JavaScript from disk, including all shortcut definitions and icons. The original entry point referenced 2.25 MB. At release this was a 96.4% reduction in uncompressed JavaScript for the default tab. Both figures count the scripts and modules on the startup path and exclude fonts and CSS.
 
 | Entry or module | Current responsibility |
 | --- | --- |
@@ -47,11 +47,11 @@ The default page now loads approximately 81 KB of JavaScript from disk, includin
 | `js/clock.js`, `js/weather.js`, `js/landscape.js` | Zoned clock and greeting, city weather cache, solar timing and animated mountain landscape |
 | `classic.html`, `js/classic.js`, `script.js`, `style.css`, `js/classic-services.js` | Original Chevron launcher, local history, advanced themes and optional chat and currency tools |
 
-Fresh installs start in dark mode, follow the device time zone, show six pins and make no external requests on opening a tab. Existing synced custom colors are selectable as **Custom colors**. An existing sync configuration still controls the greeting, weather, links and visibility. Classic keeps its own local history, themes and optional API key. The Startpage JSON backup covers the desk configuration and personal shortcuts. It excludes Classic's local history and credentials.
+Fresh installs use the Pixel theme and Dark color scheme, follow the device time zone, show six pins and make no external requests on opening a tab. Settings offers Pixel, Original, Editorial, Terminal and Glass independently of the color scheme. Existing synced custom colors are selectable under **Color scheme**. An existing sync configuration still controls the greeting, weather, links and visibility. Classic keeps its own local history, themes and optional API key. The Startpage JSON backup covers the desk configuration and personal shortcuts. It excludes Classic's local history and credentials.
 
-Typing selects the top shortcut and previews its brand as the query grows. Exact aliases take priority, followed by name prefixes and alias prefixes. For example, `s` selects Stack Overflow and every prefix from `sp` through `spotify` selects Spotify. Enter opens the selected result, and the arrow keys cycle through alternatives. The query, greeting and controls sit directly on the animated background. Foreground colors adapt to the palette, and the repeating lettering softens beneath the query. Ordinary search text such as `spotify playlist ideas` shows a scrolling GOOGLE SEARCH pattern over the four Google logo colors. Selecting the web search option or pressing Command+Enter or Ctrl+Enter searches the typed text using the saved engine. The backdrop follows keyboard selections and respects reduced motion. Both layouts use the saved name and time zone for seven greetings through the day. The default name is Prashant. A saved custom message takes priority.
+Typing selects the top shortcut and previews its brand as the query grows. Exact aliases take priority, followed by name prefixes and alias prefixes. For example, `s` selects Stack Overflow and every prefix from `sp` through `spotify` selects Spotify. Enter opens the selected result, and the arrow keys cycle through alternatives. The query, greeting and controls sit directly on the animated background. Foreground colors adapt to the palette, and the repeating lettering softens beneath the query. Ordinary search text such as `spotify playlist ideas` shows a scrolling GOOGLE SEARCH pattern over the four Google logo colors. Selecting the web search option or pressing Command+Enter or Ctrl+Enter searches the typed text using the saved engine. The backdrop follows keyboard selections and respects reduced motion. Both layouts use the saved name and time zone to rotate 49 lines across seven daily periods. The default name is Prashant. A saved custom message takes priority.
 
-Choose **Settings → Advanced & backups → New-tab layout → Classic Chevron** for the original launcher. The **‹ Startpage** link switches the default back. The original React source tree and build recipe were absent from the provided project. The bundled launcher remains the maintenance boundary for Classic. The old JSONEditor, Sass and alternate font files are outside both active startup paths.
+Both layouts use the same Settings dialog. Choose **Settings → General → New-tab layout** to switch either way. Settings has searchable topics for the launcher, colors and optional online tools. The original React source tree and build recipe were absent from the provided project. The bundled launcher remains the maintenance boundary for Classic. The unused JSONEditor bundle and its styles were removed. The legacy Sass and alternate font definitions are outside both active startup paths.
 
 Weather uses the configured city and a 30-minute cache. If refresh fails, a matching cached observation can be displayed for up to 24 hours with a visible cached label. Classic currency conversion requests a daily rate table and applies the amount locally. [Open-Meteo geocoding](https://open-meteo.com/en/docs/geocoding-api), [weather API](https://open-meteo.com/en/docs), [exchange-rate data source](https://github.com/fawazahmed0/exchange-api)
 
@@ -75,6 +75,12 @@ The canvas draws on a fixed dot grid and reuses a cached mountain layer. It paus
 ## Landscape verification on 21 November 2026
 
 All 17 unit tests and 16 deterministic Chrome scenarios passed. The new tests cover every supported weather code, solar events across midnight, polar day and night, wind, expired observations and upgrading the old text-only cache. In Chrome, a tab stayed open through dawn and the sun's pixels moved up the ridge. Rain moved during normal viewing, paused behind the Spotify search animation, resumed on dismissal and held still under reduced motion. Disabling weather restored the clock-based sky immediately. The live Berlin request returned two days of solar events and current weather and wind. The browser reported zero uncaught page errors and zero extension CSP violations.
+
+## Homepage personalization
+
+The Startpage desk has two optional widgets. Notes saves a scratchpad as you type. To-do tracks reminders, completion and optional due dates against the local calendar. Both start disabled. Users can place them with a pointer or keyboard. The placement routine checks the visible desk sections and the other widget, and reserves scrollable space below the desk when the window is too narrow.
+
+The shared Settings dialog stores these switches and a display-sized copy of the chosen wallpaper in local IndexedDB. Text, tasks and positions live in local browser storage. Open tabs receive changes, and a Web Lock serializes reminder edits across tabs. The wallpaper applies frosted surfaces only to the idle desk. Opening a search hands the full background back to the search animation.
 
 ## Run it locally
 

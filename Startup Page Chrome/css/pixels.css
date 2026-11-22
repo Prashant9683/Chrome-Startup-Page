@@ -1,0 +1,56 @@
+@font-face {
+  font-family: "Departure Mono";
+  src: url("../fonts/DepartureMono-Regular.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+:root {
+  --pixel-type: "Departure Mono", ui-monospace, monospace;
+  --matrix:
+    linear-gradient(90deg, #000 75%, #0002 75%),
+    linear-gradient(#000 75%, #0002 75%);
+}
+
+:root[data-theme="pixel"] {
+  /* Large glyphs resolve into the same square lights as the horizon. Small
+     labels use the solid pixel face to preserve one-pixel strokes. */
+  #clock-time,
+  .brand-plane > div,
+  body:has(#brand-backdrop:not([hidden])) #query,
+  .classic :is(._time_14z0e_1, ._field_znqbx_39, .marquee) {
+    mask-image: var(--matrix);
+    mask-size: 4px 4px;
+    mask-composite: intersect;
+  }
+
+  .classic,
+  .classic *,
+  .classic *::before,
+  .classic *::after {
+    font-family: var(--pixel-type) !important;
+    font-synthesis: none;
+    border-radius: 0 !important;
+  }
+
+  .classic svg {
+    shape-rendering: crispEdges;
+  }
+
+  /* The animated chevron and controls in Classic draw their own SVG paths. */
+  .classic svg:not([shape-rendering="crispEdges"]) {
+    mask-image: var(--matrix);
+    mask-size: 3px 3px;
+    mask-composite: intersect;
+  }
+
+  @media (forced-colors: active) {
+    #clock-time,
+    .brand-plane > div,
+    body:has(#brand-backdrop:not([hidden])) #query,
+    .classic svg:not([shape-rendering="crispEdges"]),
+    .classic :is(._time_14z0e_1, ._field_znqbx_39, .marquee) {
+      mask-image: none;
+    }
+  }
+}

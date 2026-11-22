@@ -221,6 +221,25 @@ test("strict imports reject invalid structures and non-web links", () => {
   }
   assert.deepEqual(check(defaults), defaults);
 });
+test("themes and schemes round-trip independently and read older backups", () => {
+  for (const colorScheme of ["dark", "light", "system", "custom"]) {
+    const old = check({ theme: colorScheme });
+    assert.equal(old.colorScheme, colorScheme);
+    assert.equal(old.visualTheme, "pixel");
+    assert.equal(Object.hasOwn(old, "theme"), false);
+    for (const visualTheme of ["pixel", "original", "editorial", "terminal", "mac-terminal", "vintage-windows", "glass"]) {
+      const saved = check({ theme: "dark", colorScheme, visualTheme });
+      assert.equal(saved.colorScheme, colorScheme);
+      assert.equal(saved.visualTheme, visualTheme);
+      assert.deepEqual(check(JSON.parse(JSON.stringify(saved))), saved);
+    }
+  }
+  const style = { backgroundColor: "#345" };
+  assert.equal(check({ style, visualTheme: "original" }).colorScheme, "custom");
+  assert.equal(check({ style, theme: "light" }).colorScheme, "light");
+  assert.throws(() => check({ visualTheme: "light" }), /visualTheme/);
+  assert.throws(() => check({ colorScheme: "terminal" }), /colorScheme/);
+});
 test("partial old settings recover per field without editing the input", () => {
   const old = {
     user: "Pat",
@@ -248,7 +267,7 @@ test("clock, day and greeting agree across midnight and DST", () => {
   assert.match(la.date, /Tuesday, December 31/);
   assert.equal(
     la.greeting,
-    "A, how’s your afternoon going? Time for a stretch?",
+    "A, what’s the smallest thing you’d like to finish before dinner?",
   );
   assert.equal(la.time, "4:05");
   assert.equal(la.period, "PM");
@@ -276,7 +295,7 @@ test("named greetings follow the local hour and respect a blank name or custom m
   );
   assert.match(
     clockReading(new Date(midnight - 1), config).greeting,
-    /call it a day/,
+    /wind down/,
   );
   const times = [
     [0, "Get some sleep"],
@@ -303,6 +322,24 @@ test("named greetings follow the local hour and respect a blank name or custom m
     clockReading(midnight, { ...config, message: "On holiday." }).greeting,
     "On holiday.",
   );
+});
+test("each time of day has seven daily greetings tied to the local calendar", () => {
+  for (const hour of [0, 6, 9, 12, 14, 17, 20]) {
+    const config = { ...defaults, user: "Rae", timeZone: "America/New_York" };
+    const lines = new Set();
+    for (let d = 0; d < 7; d++) {
+      // The clocks turn back during this week. Sample the same local hour each day.
+      const date = new Date(Date.UTC(2025, 9, 30 + d, hour + (d > 3 || (d === 3 && hour >= 2) ? 5 : 4)));
+      const line = clockReading(date, config).greeting;
+      assert.equal(clockReading(new Date(+date + 59 * 60_000), config).greeting, line);
+      assert.match(line, /^Rae, /);
+      lines.add(line);
+    }
+    assert.equal(lines.size, 7);
+  }
+  const at = (iso, timeZone) => clockReading(new Date(iso), { ...defaults, timeZone }).greeting;
+  assert.equal(at("2025-01-02T01:00Z", "UTC"), at("2025-01-01T19:30Z", "Asia/Kolkata"));
+  assert.notEqual(at("2025-01-02T01:00Z", "UTC"), at("2025-01-01T01:00Z", "UTC"));
 });
 test("landscape follows city solar events across midnight and falls back to the desk clock offline", () => {
   const hour = 3_600_000,

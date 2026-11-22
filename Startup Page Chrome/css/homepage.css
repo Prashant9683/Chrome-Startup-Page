@@ -1,0 +1,214 @@
+#home-workspace {
+  position: relative;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  min-width: 0;
+}
+#home-center {
+  display: grid;
+  min-width: 0;
+}
+body:has(#widgets:not([hidden])):has(#results[hidden]) #home-center {
+  min-height: calc(100svh - var(--bars-height, 148px));
+}
+#widgets {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+.widget {
+  position: absolute;
+  pointer-events: auto;
+  width: min(clamp(196px, 17vw, 260px), calc(100% - 20px));
+  height: 218px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--ink);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--surface-radius, 9px);
+}
+:root[data-theme="pixel"] .widget {
+  border-radius: 0;
+}
+.widget header,
+.reminder-entry,
+.due-input,
+.reminder-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.widget header {
+  justify-content: space-between;
+}
+.widget h2 {
+  margin: 0;
+  font: 600 14px/1.2 var(--font-display);
+}
+.widget .move-widget {
+  width: 28px;
+  height: 27px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+.move-widget::before {
+  content: "";
+  display: block;
+  width: 10px;
+  height: 15px;
+  margin: auto;
+  background: radial-gradient(circle, currentColor 1.2px, transparent 1.5px) 0
+    0 / 5px 5px;
+}
+.widget .move-widget.moving {
+  cursor: grabbing;
+}
+.widget:has(.moving) {
+  outline: 2px solid var(--accent);
+  z-index: 1;
+}
+.widget textarea,
+.widget input:not([type="checkbox"]) {
+  color: inherit;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  font: 13px/1.5 var(--font-body);
+}
+#home-notes {
+  flex: 1;
+  min-height: 0;
+  resize: none;
+  padding: 4px 1px;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+}
+.widget input::placeholder,
+.widget textarea::placeholder {
+  color: var(--muted);
+}
+#reminders {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+#reminders:empty::before {
+  content: "No reminders yet.";
+  color: var(--muted);
+  font-size: 12px;
+}
+.reminder-row {
+  align-items: flex-start;
+  padding-block: 4px;
+  font: 13px/1.45 var(--font-body);
+}
+.reminder-row label {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  color: inherit;
+  cursor: pointer;
+}
+.reminder-row input {
+  margin: 0;
+  accent-color: var(--accent);
+}
+.reminder-row span {
+  overflow-wrap: anywhere;
+}
+.reminder-row time {
+  display: block;
+  font: 10px/1.5 var(--font-mono);
+  color: var(--muted);
+}
+.reminder-row .due-now {
+  color: var(--accent);
+}
+.reminder-row:has(:checked) label span {
+  text-decoration: line-through;
+  color: var(--muted);
+}
+.reminder-row button {
+  border: 0;
+  background: transparent;
+  padding: 0 4px;
+  color: var(--muted);
+}
+.reminder-entry {
+  border: 1px solid var(--line);
+  border-radius: var(--control-radius, 4px);
+  padding: 3px 5px;
+}
+.reminder-entry input {
+  flex: 1;
+  width: 0;
+}
+.reminder-entry button {
+  border: 0;
+  background: none;
+  color: var(--accent);
+  padding: 0 5px;
+  font: 18px var(--font-body);
+}
+.due-input {
+  margin-top: 5px;
+  font: 10px var(--font-mono);
+  color: var(--muted);
+}
+.widget .due-input input {
+  font: inherit;
+  color: inherit;
+}
+#home-wallpaper {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: center / cover no-repeat;
+}
+body:has(#results:not([hidden]), #brand-backdrop:not([hidden]))
+  :is(#home-wallpaper, #widgets, #widget-room) {
+  display: none;
+}
+/* A single full-page veil keeps text readable over the wallpaper. */
+body[data-wallpaper]:has(#results[hidden]):has(#brand-backdrop[hidden]) {
+  --ink: #f5f8fb;
+  --muted: #e0e8ef;
+  --accent: #ffd19e;
+  --veil: rgb(11 20 29 / 76%);
+  --date-ink: var(--ink);
+  --greeting-ink: var(--ink);
+  --weather-ink: var(--muted);
+  --search-ink: var(--ink);
+  --tile-ink: var(--ink);
+}
+:root[data-color-scheme="light"]
+  body[data-wallpaper]:has(#results[hidden]):has(#brand-backdrop[hidden]) {
+  --ink: #172833;
+  --muted: #344b59;
+  --accent: #783e0d;
+  --veil: rgb(245 249 253 / 79%);
+}
+#home-wallpaper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--veil, transparent);
+}
+@media (forced-colors: active) {
+  #home-wallpaper { display: none; }
+}
