@@ -1,3 +1,4 @@
+import { extension } from "./extension-api.js";
 import { webURL } from "./search.js";
 
 const settingsKey = "startpage.preferences";
@@ -123,7 +124,7 @@ function readLocal(key) {
 }
 
 export async function readSaved() {
-  const area = globalThis.chrome?.storage?.sync;
+  const area = extension?.storage?.sync ?? extension?.storage?.local;
   return area ? area.get(null) : readLocal(settingsKey);
 }
 
@@ -138,7 +139,7 @@ export function changes(before, after) {
 
 export async function writeSaved(patch) {
   if (!Object.keys(patch).length) return;
-  const area = globalThis.chrome?.storage?.sync;
+  const area = extension?.storage?.sync ?? extension?.storage?.local;
   if (area) await area.set(patch);
   else
     localStorage.setItem(
@@ -148,9 +149,9 @@ export async function writeSaved(patch) {
 }
 
 export function watchSaved(callback) {
-  if (globalThis.chrome?.storage?.onChanged) {
-    chrome.storage.onChanged.addListener((_, area) => {
-      if (area === "sync") callback();
+  if (extension?.storage?.onChanged) {
+    extension.storage.onChanged.addListener((_, area) => {
+      if (area === (extension.storage.sync ? "sync" : "local")) callback();
     });
   } else
     window.addEventListener("storage", (e) => {

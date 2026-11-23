@@ -680,3 +680,10 @@ body:has(#brand-backdrop:not([hidden])) {
   footer.bar { grid-template-columns: minmax(0, 1fr); justify-items: center; }
   footer.bar #zone { grid-row: 2; }
 }
+
+/* Keep short branded queries centered in engines without intrinsic input sizing. */
+@supports not (field-sizing: content) {
+  body:has(#brand-backdrop:not([hidden])) #query {
+    width: calc(var(--query-length, 1) * 1ch + .25em);
+  }
+}

@@ -6,6 +6,7 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
+    "package:browsers": "python3 tools/package-browsers.py",
     "test": "node --test tests/*.test.js",
     "test:browser": "node tests/browser.mjs"
   },

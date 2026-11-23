@@ -1,6 +1,6 @@
-# Startpage — A Minimal New Tab Extension for Chrome
+# Startpage — A Minimal Cross-Browser New Tab
 
-A quiet, keyboard-driven new tab replacement for Google Chrome that puts a live clock, personalized greetings, quick shortcuts, weather and a smart search bar right at your fingertips. With default settings, a new tab runs offline.
+A quiet, keyboard-driven new tab replacement for modern browsers that puts a live clock, personalized greetings, quick shortcuts, weather and a smart search bar right at your fingertips. With default settings, a new tab runs offline.
 
 ---
 
@@ -102,55 +102,77 @@ Chrome opens the new-tab override from an internal address such as `chrome-exten
 
 ## 🚀 Installation
 
-### Step 1 — Get the Source Code
+Choose your browser and device. After installing a native extension, open a **new tab** to check that the Startpage clock and search field appear.
 
-You can get the project by **cloning the repository** or **downloading it as a ZIP**.
+| Browser and device | Guide | Package in `dist/` |
+| --- | --- | --- |
+| Chrome (including ChromeOS), Microsoft Edge, Brave, Vivaldi on desktop | [Load an unpacked extension](#desktop-chromium-browsers) | `startpage-chromium.zip` |
+| Firefox on Windows, macOS or Linux | [Install the Firefox add-on](#firefox-desktop) | `startpage-firefox.zip` |
+| Safari on Mac | [Try the temporary extension](#safari-on-mac) or [build the app](#safari-app-for-mac-iphone-and-ipad) | `startpage-safari.zip` |
+| Safari on iPhone or iPad | [Install the containing app](#safari-app-for-mac-iphone-and-ipad) | `startpage-safari.zip` and Xcode |
+| Opera and Opera GX, Firefox for Android, other mobile browsers, or a browser without a compatible extension loader | [Open Startpage as a website](#web-version-for-other-browsers) | `startpage-chromium.zip` |
 
-#### Option A: Clone with Git (Recommended)
+### Get the files
 
-Open a terminal and run:
+If you already have the browser ZIPs, skip to your browser’s instructions. To build them from source:
 
-```bash
-git clone https://github.com/Prashant9683/Chrome-Startup-Page.git
-```
+1. Clone the repository or choose **Code → Download ZIP** on GitHub and extract the download. [Project repository](https://github.com/Prashant9683/Chrome-Startup-Page)
+2. Open a terminal in the folder containing both `manifest.json` and `tools/package-browsers.py`.
+3. Run `python3 tools/package-browsers.py` (on Windows, `py -3 tools/package-browsers.py`). This creates all three unsigned packages. The builder uses Python 3 and its standard library.
 
-This will create a `Chrome-Startup-Page` directory containing the `Startup Page Chrome` extension folder.
+### Desktop Chromium browsers
 
-#### Option B: Download as ZIP
+1. Extract `startpage-chromium.zip` into a folder you can keep. If you already run Startpage from source, keep using the same folder to preserve the installation ID and settings.
+2. Enter the address for your browser in the address bar.
 
-1. Go to the GitHub repository: [https://github.com/Prashant9683/Chrome-Startup-Page](https://github.com/Prashant9683/Chrome-Startup-Page)
-2. Click the green **"<> Code"** button, then click **"Download ZIP"**
-3. Extract/unzip the downloaded file. Inside, you will find the `Startup Page Chrome` folder.
+   | Browser | Extensions page |
+   | --- | --- |
+   | Google Chrome or Chromium | `chrome://extensions` |
+   | Microsoft Edge | `edge://extensions` |
+   | Brave | `brave://extensions` |
+   | Vivaldi | `vivaldi://extensions` |
 
-> [!IMPORTANT]
-> - Make sure you **extract the ZIP** before proceeding. Chrome cannot load a `.zip` file directly.
-> - The extension directory to load is the inner **`Startup Page Chrome`** folder (where `manifest.json` is located), **not** the parent repository folder.
+3. Enable **Developer mode**, choose **Load unpacked**, and select the folder with `manifest.json` directly inside it. You can also select the original source folder. [Chrome screenshots: extensions page](guide_images/1.png), [folder selection](guide_images/2.JPEG), [enabled extension](guide_images/3.png)
+4. Confirm **Startpage by Prashant Gehlot** is enabled. In **Vivaldi**, also open **Settings → Tabs → New Tab Page**, select **Start Page**, then tick **Controlled by Extension**. [Vivaldi’s Start Page guide](https://help.vivaldi.com/desktop/navigation/start-page/)
+5. Press **Ctrl+T** or **⌘T**. If the browser asks whether to keep the new tab change, confirm it. To update later, replace the files in the same folder, click **Reload** on the extensions page, and open another tab.
 
----
+Other desktop Chromium browsers can use these steps if they provide both **Load unpacked** and extension control over new tabs. On a managed device, an administrator may control those settings.
 
-### Step 2 — Enable Developer Mode & Load the Extension
+### Firefox desktop
 
-Open **Google Chrome** and navigate to `chrome://extensions`. Turn on **Developer mode** using the toggle in the top-right corner, then click the **"Load unpacked"** button.
+1. Enter `about:debugging#/runtime/this-firefox` in Firefox’s address bar.
+2. Choose **Load Temporary Add-on…** and select the unopened `startpage-firefox.zip`.
+3. Open a new tab. If Firefox asks you to confirm the new tab change, keep Startpage.
+4. After restarting Firefox, repeat steps 1 and 2. For a permanent installation in standard Firefox, the extension must be distributed as a Mozilla-signed add-on. [Mozilla’s temporary installation guide](https://extensionworkshop.com/documentation/develop/temporary-installation-in-firefox/)
 
-![Step 2 — Enable Developer Mode and click Load Unpacked](guide_images/1.png)
+### Safari on Mac
 
-### Step 3 — Select the "Startup Page Chrome" Folder
+1. Open **Safari → Settings → Advanced** and enable **Show features for web developers**.
+2. Open the **Developer** tab in Safari Settings and choose **Add Temporary Extension…**. Approve the unsigned-extension prompt and select `startpage-safari.zip`.
+3. Under **Settings → Extensions**, enable Startpage for the Safari profile you use. Under **Settings → General → New tabs open with**, choose Startpage. To use it for new windows too, choose it under **New windows open with**.
+4. Press **⌘T** to verify. Safari removes a temporary extension when you quit Safari or after 24 hours. For an app-based installation, use the next section. [Apple’s Safari installation guide](https://developer.apple.com/documentation/safariservices/running-your-safari-web-extension)
 
-In the file picker, navigate inside the cloned or unzipped repository and select the **`Startup Page Chrome`** folder (the one containing `manifest.json`), then click **Select**.
+### Safari app for Mac, iPhone and iPad
 
-> [!IMPORTANT]
-> Be sure to select the inner **`Startup Page Chrome`** subfolder, not the parent `Chrome-Startup-Page` directory.
+This route requires a Mac with full Xcode. The Safari ZIP contains the web extension resources used to build the app.
 
-![Step 3 — Select the project folder](guide_images/2.JPEG)
+1. Extract `startpage-safari.zip`. Run the following in Terminal, substituting the actual path of the folder containing the extracted `manifest.json`.
 
-### Step 4 — Verify Installation & Keep It Enabled
+   ```sh
+   xcrun safari-web-extension-packager "/path/to/extracted-folder" --app-name Startpage --swift
+   ```
 
-The extension should now appear in your extensions list. Make sure the **toggle is enabled** so it stays active. Open a new tab to see your new Startpage!
+2. In Xcode, select the macOS or iOS app scheme. Choose your Mac, simulator, or connected device as the destination. Configure signing for the app and extension targets, then choose **Product → Run**. A signed distribution build is required for distribution to other users. [Apple’s packaging guide](https://developer.apple.com/documentation/safariservices/packaging-a-web-extension-for-safari)
+3. **On Mac**, launch the containing app once, then enable Startpage in Safari Settings and select it under **New tabs open with**.
+4. **On iPhone or iPad**, open **Settings → Apps → Safari → Extensions** (on older versions, **Settings → Safari → Extensions**). Enable Startpage and select it for new tabs when prompted. Open a fresh Safari tab using the **+** button. [Apple’s device installation guide](https://developer.apple.com/documentation/safariservices/running-your-safari-web-extension)
 
-![Step 4 — Extension installed, keep it enabled](guide_images/3.png)
+### Web version for other browsers
 
-> [!TIP]
-> After any update to the extension files (e.g. after a `git pull`), go back to `chrome://extensions` and click the **Reload** (↻) button on the Startpage card, then open a new tab to see your changes.
+Use this route for Opera or Opera GX, Firefox for Android, and mobile browsers such as Chrome, Edge, or Brave where the desktop package cannot take over new tabs. It also works if you simply want a bookmark. [New-tab override compatibility](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/chrome_url_overrides)
+
+- **On one computer:** Extract `startpage-chromium.zip`. Open a terminal in the extracted folder and run `python3 -m http.server 8000 --bind 127.0.0.1` (Windows: `py -3 -m http.server 8000 --bind 127.0.0.1`). Keep the terminal running and open `http://localhost:8000/` in your browser.
+- **On a phone, tablet, or another computer:** Serve the extracted folder from an HTTPS static web host and open its address on the device. The localhost address above refers to the device you type it on.
+- **For daily use:** Bookmark the address, add it to the home screen where supported, or set it as a custom homepage in browsers that offer that option. A bookmark opens Startpage on demand. Keep using the same address and browser profile to access your locally saved notes, reminders, and preferences.
 
 ---
 
