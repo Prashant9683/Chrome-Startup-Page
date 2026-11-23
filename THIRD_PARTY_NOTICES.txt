@@ -1,0 +1,27 @@
+Startpage by Prashant Gehlot
+Copyright (c) 2026 Prashant Gehlot. See LICENSE for the MIT terms for original Startpage code and modifications.
+
+Classic Chevron
+The bundled launcher in script.js and style.css, along with the shortcut and command format, derives from Chevron by Ivan Kholmogorov.
+Copyright (c) 2023 Ivan Kholmogorov. MIT. See licenses/Chevron-MIT.txt.
+Project: https://github.com/kholmogorov27/chevron
+
+The launcher runs from local files. Its upstream production manifest includes React, React DOM, Emotion, MUI Joy, Framer Motion, Splide, MiniSearch, dateformat, Color.js, react-colorful, React Icons, react-markdown, react-fast-marquee, react-device-detect, react-inlinesvg, react-scroll-into-view-if-needed, autosize, axios and assign-deep. The installed bundle is prebuilt. Its individual module revisions cannot all be reconstructed from the shipped files. The included upstream dependency notices cover the upstream production dependency tree, including packages used in building that tree.
+Manifest: https://github.com/kholmogorov27/chevron/blob/master/package.json
+Package notices: licenses/Chevron-dependencies.txt
+Shortcut names and logos identify their respective services. Individual icon designs retain their original rights and licenses.
+
+Fonts
+Departure Mono 1.500: Copyright 2022–2024 Helena Zhang. SIL Open Font License 1.1. See fonts/DepartureMono-LICENSE.txt.
+JetBrains Mono 1.0.2: © 2000–2020 JetBrains s.r.o. Developed with drive and IntelliJ IDEA. The WOFF and WOFF2 files supplied here specify Apache License 2.0 in their metadata. See licenses/Apache-2.0.txt.
+
+Network services
+Time and time zones: browser Date and Intl APIs, with no network request.
+Weather, when enabled: geocoding-api.open-meteo.com and api.open-meteo.com. The weather readout links to the provider. https://open-meteo.com/
+Live currency, when enabled in Classic: jsDelivr supplies the daily rates from https://github.com/fawazahmed0/exchange-api. The request names the base currency. Calculation of the amount takes place locally.
+AI chat, when enabled in Classic: api.openai.com receives the submitted chat and API key for authorization.
+Search and shortcut destinations: the browser navigates to the selected site when the user opens a result.
+Shared preferences: chrome.storage.sync follows Chrome's profile sync settings. Notes, reminders, wallpapers, Classic history and Classic's API key use local storage.
+
+Development
+Playwright Core by Microsoft and contributors is the development dependency for browser integration tests (Apache 2.0). Chrome loads the packaged extension directly. Running the extension needs no npm install, GitHub connection or hosted app server.

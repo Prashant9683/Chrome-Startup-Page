@@ -1,0 +1,22 @@
+{
+  "layout": "desk",
+  "visualTheme": "pixel",
+  "colorScheme": "dark",
+  "title": "Startpage by Prashant Gehlot",
+  "user": "Prashant",
+  "message": "",
+  "timeZone": "",
+  "disable24Hour": true,
+  "disableMessage": false,
+  "disableDate": false,
+  "disableSearchBar": false,
+  "disableWeather": true,
+  "weatherConf": { "location": "", "unit": "cel" },
+  "searchEngine": "Google",
+  "linkInNewTab": false,
+  "settingsIcon": true,
+  "pinned": ["GitHub", "YouTube", "Gmail", "Reddit", "Spotify", "Google Drive"],
+  "squares": [],
+  "quickLinks": {},
+  "style": {}
+}

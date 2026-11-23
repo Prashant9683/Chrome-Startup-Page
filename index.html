@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en" data-theme="pixel" data-color-scheme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#181917" />
+    <title>Startpage by Prashant Gehlot</title>
+    <link rel="icon" href="img/icon64.png" />
+    <link rel="preload" href="fonts/DepartureMono-Regular.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="css/pixels.css" />
+    <link rel="stylesheet" href="css/shared.css" />
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/themes.css" />
+    <link rel="stylesheet" href="css/homepage.css" />
+    <link rel="stylesheet" href="css/minimal.css" />
+    <script defer src="config.js"></script>
+    <script defer src="icons.js"></script>
+    <script type="module" src="js/main.js"></script>
+  </head>
+  <body>
+    <div id="home-wallpaper" hidden aria-hidden="true"></div>
+    <div id="brand-backdrop" aria-hidden="true" hidden>
+      <div class="brand-pattern"><div class="brand-plane"></div></div>
+    </div>
+    <header class="bar">
+      <div class="wordmark" title="Startpage by Prashant Gehlot">
+        <i class="brand-mark" aria-hidden="true"></i>Startpage
+      </div>
+      <p id="brand-greeting"></p>
+      <button
+        id="preferences"
+        class="icon-button"
+        aria-label="Open settings"
+        title="Settings"
+      >
+        <span data-icon="settings"></span>
+      </button>
+    </header>
+    <div id="home-workspace">
+      <div id="home-center">
+        <main id="desk" hidden>
+          <section class="hero" aria-label="Today">
+            <div class="readout">
+              <div id="date" class="eyebrow"></div>
+              <div id="clock">
+                <time id="clock-time"></time><span id="period"></span>
+              </div>
+              <h1 id="greeting"></h1>
+              <a
+                id="weather"
+                href="https://open-meteo.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                hidden
+              ></a>
+            </div>
+            <canvas
+              id="landscape"
+              width="270"
+              height="130"
+              aria-hidden="true"
+            ></canvas>
+          </section>
+
+          <section id="search" aria-label="Search">
+            <form id="search-form" role="search" autocomplete="off">
+              <span class="prompt" aria-hidden="true"><span class="prompt-chevron">❯</span><span class="prompt-shell">user@macbook ~ %</span></span>
+              <input
+                id="query"
+                type="text"
+                role="combobox"
+                aria-label="Search or enter a URL"
+                aria-expanded="false"
+                aria-autocomplete="list"
+                aria-controls="results"
+                spellcheck="false"
+                autocapitalize="off"
+              />
+              <button class="enter" type="submit" aria-label="Go" title="Go">
+                ↵
+              </button>
+            </form>
+            <ul
+              id="results"
+              role="listbox"
+              aria-label="Search suggestions"
+              hidden
+            ></ul>
+          </section>
+
+          <section class="favorites" aria-labelledby="pinned-heading">
+            <div class="section-heading">
+              <h2 id="pinned-heading" class="eyebrow">Pinned</h2>
+              <button id="browse" class="text-button">
+                All shortcuts <span aria-hidden="true">↗</span>
+              </button>
+            </div>
+            <div id="pins"></div>
+          </section>
+        </main>
+      </div>
+      <div id="widget-room" aria-hidden="true"></div>
+      <aside id="widgets" aria-label="Homepage widgets" hidden>
+        <section class="widget" id="todo-widget" aria-labelledby="todo-heading" hidden>
+          <header><h2 id="todo-heading">To-do</h2>
+            <button class="move-widget" aria-label="Move To-do" aria-describedby="move-help" title="Move To-do"></button>
+          </header>
+          <ul id="reminders" aria-label="Reminders"></ul>
+          <form id="reminder-form" autocomplete="off">
+            <div class="reminder-entry">
+              <input name="task" aria-label="New reminder" placeholder="Add a reminder…" required />
+              <button type="submit" aria-label="Add reminder" title="Add reminder">+</button>
+            </div>
+            <label class="due-input">Due <input name="due" type="date" aria-label="Optional due date" /></label>
+          </form>
+        </section>
+        <section class="widget" id="notes-widget" aria-labelledby="notes-heading" hidden>
+          <header><h2 id="notes-heading">Notes</h2>
+            <button class="move-widget" aria-label="Move Notes" aria-describedby="move-help" title="Move Notes"></button>
+          </header>
+          <textarea id="home-notes" aria-label="Notes" placeholder="Write a note…" spellcheck="true"></textarea>
+        </section>
+        <p class="sr-only" id="move-help">Drag to an empty space, or use the arrow keys while the move button is focused.</p>
+      </aside>
+    </div>
+    <footer class="bar">
+      <div class="hints">
+        <button id="focus-search"><kbd>/</kbd> Search</button>
+        <button id="library-key" aria-label="Open shortcuts" aria-keyshortcuts="Control+K Meta+K Alt+K"
+          title="Windows: Ctrl+K · Mac: ⌘K · Also works with Alt+K or ⌥K">
+          <kbd>Ctrl+K</kbd><span aria-hidden="true">/</span><kbd>⌘K</kbd> Shortcuts
+        </button>
+      </div>
+      <span id="zone"></span>
+    </footer>
+    <p id="notice" role="status" hidden></p>
+
+    <dialog id="library" aria-labelledby="library-title">
+      <header class="modal-head">
+        <h2 id="library-title">Shortcuts</h2>
+        <button class="icon-button" data-close aria-label="Close shortcuts">
+          ×
+        </button>
+      </header>
+      <div class="modal-body">
+        <label class="sr-only" for="library-query">Filter shortcuts</label>
+        <input
+          id="library-query"
+          type="search"
+          placeholder="Filter by name, alias or group…"
+          autocomplete="off"
+        />
+        <div id="library-list"></div>
+        <details id="new-shortcut">
+          <summary>Add a shortcut</summary>
+          <form id="add-form" class="stack">
+            <label
+              >Name<input
+                name="name"
+                required
+                maxlength="90"
+                placeholder="Project notes"
+            /></label>
+            <label
+              >Web address<input
+                name="url"
+                required
+                placeholder="https://example.com"
+            /></label>
+            <div class="backup-actions">
+              <button class="primary" type="submit">Add shortcut</button
+              ><button type="button" id="remove-shortcut" hidden>
+                Remove shortcut
+              </button>
+            </div>
+          </form>
+        </details>
+        <details class="command-help">
+          <summary>Search shortcuts</summary>
+          <dl>
+            <dt><kbd>yt?jazz</kbd></dt>
+            <dd>Search YouTube for jazz</dd>
+            <dt><kbd>12 × (3 + 2)</kbd></dt>
+            <dd>Calculate locally and press Enter to use the result</dd>
+            <dt><kbd>r/chrome</kbd></dt>
+            <dd>Open a subreddit</dd>
+            <dt><kbd>Shift</kbd> + <kbd>G</kbd></dt>
+            <dd>Open GitHub from the page</dd>
+            <dt><kbd>Ctrl</kbd> / <kbd>⌘</kbd> + <kbd>Enter</kbd></dt>
+            <dd>Search the typed text with your engine</dd>
+          </dl>
+        </details>
+        <p id="library-status" class="status" role="status"></p>
+      </div>
+    </dialog>
+
+
+  </body>
+</html>
