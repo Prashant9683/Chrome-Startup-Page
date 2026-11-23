@@ -1,10 +1,6 @@
-# Startpage — A Minimal New Tab Extension for Chrome
+# Startpage — A Minimal Cross-Browser New Tab
 
-A quiet, keyboard-driven new tab replacement for Google Chrome that puts a live clock, personalized greetings, quick shortcuts, weather and a smart search bar right at your fingertips — all without making a single network request on startup.
-
-![Chrome Extension](https://img.shields.io/badge/Platform-Chrome-4285F4?logo=googlechrome&logoColor=white)
-![Manifest V3](https://img.shields.io/badge/Manifest-V3-34A853)
-![Version](https://img.shields.io/badge/Version-2.0.0-blue)
+A quiet, keyboard-driven new tab replacement for modern browsers that puts a live clock, personalized greetings, quick shortcuts, weather and a smart search bar right at your fingertips. With default settings, a new tab runs offline.
 
 ---
 
@@ -13,7 +9,7 @@ A quiet, keyboard-driven new tab replacement for Google Chrome that puts a live 
 ### 🕐 Live Clock & Personalized Greetings
 - Real-time clock with **12-hour** or **24-hour** format
 - Configurable **time zone** support (any IANA zone, e.g. `Asia/Kolkata`, `America/New_York`)
-- **Time-aware greetings** that change throughout the day — from _"you're up early"_ in the morning to _"it's getting late"_ at night
+- **49 personal greetings** across seven times of day. Each period gets a different line the next day in your selected time zone.
 - Personalize greetings with your name, or set a custom message
 
 ### 🔍 Smart Search Bar
@@ -33,13 +29,13 @@ A quiet, keyboard-driven new tab replacement for Google Chrome that puts a live 
 - Pin your favorite sites to the main page for one-click access
 - **20+ built-in shortcuts** across categories: YouTube, GitHub, Reddit, Gmail, Spotify, Discord, WhatsApp, Telegram, Instagram, Twitter, Netflix, LinkedIn, Stack Overflow, ChatGPT, Wikipedia, Amazon, Google Drive, Translate, and more
 - **Add your own custom shortcuts** with a name and URL through the Shortcuts library
-- **Filter and manage** all shortcuts from the library dialog (`Alt + K`)
+- **Filter and manage** all shortcuts from the library dialog (`Ctrl+K` on Windows or `⌘K` on Mac)
 
 ### ⌨️ Keyboard-First Navigation
 | Shortcut | Action |
 |---|---|
-| `/` or `Ctrl/⌘ + K` | Focus the search bar |
-| `Alt + K` | Open the shortcuts library |
+| `/` | Focus the search bar |
+| `Ctrl+K` (Windows) or `⌘K` (Mac) | Open the shortcuts library. `Alt+K` / `⌥K` also works. |
 | `Ctrl/⌘ + ,` | Open settings |
 | `Shift + Key` | Jump directly to a shortcut (e.g. `Shift + G` → GitHub) |
 | `↑` / `↓` | Navigate search suggestions |
@@ -64,14 +60,24 @@ A quiet, keyboard-driven new tab replacement for Google Chrome that puts a live 
 - Pauses rendering when the tab is hidden to save resources
 
 ### 🎨 Themes & Customization
-- **Dark**, **Light**, and **System** (auto-detect) themes
+- **Pixel** (default) uses pixel lettering and icons. **Original** restores the smooth interface, **Editorial** pairs serif headings with simple shortcuts, **Terminal** uses green accents and monospace type, and **Glass** uses a soft gradient in light and dark. **macOS Terminal** adds a traffic-light title bar and monospace prompt. **Vintage Windows** uses a teal desktop, striped window headers, and folder-shaped shortcuts.
+- Set **Color scheme** to Dark, Light, or System for any theme.
 - **Custom colors** — override individual UI element colors (background, search bar, greeting text, tiles, etc.)
-- Two layout modes:
+- Switch between both layouts in **Settings → General → New-tab layout**.
   - **Startpage** (default) — the modern desk layout with clock, search, and pins
   - **Classic Chevron** — the original launcher interface with themes, history, and optional AI/currency tools
 
-### 💾 Settings & Backup
-- All settings sync across devices via **Chrome Sync Storage**
+### Homepage widgets & wallpaper
+
+Open **Settings → Homepage** in Startpage. Enable **To-do list** to add reminders with optional due dates, or **Notes** for a scratchpad that saves as you type. Both widgets start turned off. Drag a widget by its dotted handle or focus the handle and press the arrow keys to move it. When the window is too narrow, scroll down to reach the widgets below the pins.
+
+Choose a picture from your device to set the homepage background in your selected color scheme. Typing a search brings up its animated brand background. Your picture, widget positions, notes and reminders stay in this browser profile. The JSON backup covers shared settings.
+
+### Settings & backup
+
+Type a word like **history**, **wallpaper**, **API key** or **clock** in **Find a setting** to edit matching controls. Press Enter to focus a match and Escape to clear the finder. You can also browse by topic. Save applies the whole draft, including edits made in different sections.
+
+- Shared preferences sync across devices via **Chrome Sync Storage**. Classic’s launcher preferences, chat key and search history stay on this device.
 - **Export** your configuration as a JSON file
 - **Import** a previously exported JSON backup
 - Edit the raw configuration JSON in an advanced editor
@@ -82,61 +88,96 @@ A quiet, keyboard-driven new tab replacement for Google Chrome that puts a live 
 - **Zero network requests** on a fresh tab (weather is opt-in)
 - No analytics, no tracking, no telemetry
 - Only requires the `storage` Chrome permission
-- All shortcut icons and fonts are bundled locally (~81 KB of JavaScript total)
+- All shortcut icons and fonts are bundled locally
 
 ---
+
+## Independence and network use
+
+The Startpage desk, Settings, widgets and search suggestions run locally. The clock uses the device and browser time-zone database. Optional weather uses Open-Meteo. Classic Chevron, its libraries and both fonts are packaged with the extension. GitHub and npm are unnecessary to run an unpacked copy.
+
+Classic’s **Online tools** section controls two optional external services. Live conversions use the fawazahmed0 currency dataset via jsDelivr. AI chat sends an explicitly submitted prompt to OpenAI using the configured key. Both start off in a new profile. Following a shortcut or submitting a web search opens the chosen site. Development uses Playwright for browser tests. [Full inventory](THIRD_PARTY_NOTICES.txt)
+
+Chrome opens the new-tab override from an internal address such as `chrome-extension://<id>/index.html`. The ID belongs to the installation. For this unpacked project without a manifest key, Chrome derives it from the absolute folder path. The manifest sets the display name and developer. [Chrome’s extension ID documentation](https://developer.chrome.com/docs/extensions/reference/manifest/key)
 
 ## 🚀 Installation
 
-### Step 1 — Get the Source Code
+Choose your browser and device. After installing a native extension, open a **new tab** to check that the Startpage clock and search field appear.
 
-You can get the project by **cloning the repository** or **downloading it as a ZIP**.
+| Browser and device | Guide | Package in `dist/` |
+| --- | --- | --- |
+| Chrome (including ChromeOS), Microsoft Edge, Brave, Vivaldi on desktop | [Load an unpacked extension](#desktop-chromium-browsers) | `startpage-chromium.zip` |
+| Firefox on Windows, macOS or Linux | [Install the Firefox add-on](#firefox-desktop) | `startpage-firefox.zip` |
+| Safari on Mac for everyday personal use | [Use the web version on every new tab](#use-startpage-as-your-safari-homepage) | Hosted website |
+| Safari on Mac as an extension | [Try the temporary extension](#safari-on-mac) or [build the app](#safari-app-for-mac-iphone-and-ipad) | `startpage-safari.zip` |
+| Safari on iPhone or iPad | [Install the containing app](#safari-app-for-mac-iphone-and-ipad) | `startpage-safari.zip` and Xcode |
+| Opera and Opera GX, Firefox for Android, other mobile browsers, or a browser without a compatible extension loader | [Open Startpage as a website](#web-version-for-other-browsers) | Hosted website |
 
-#### Option A: Clone with Git (Recommended)
+### Get the files
 
-Open a terminal and run:
+If you already have the browser ZIPs, skip to your browser’s instructions. To build them from source:
 
-```bash
-git clone https://github.com/Prashant9683/Chrome-Startup-Page.git
-```
+1. Clone the repository or choose **Code → Download ZIP** on GitHub and extract the download. [Project repository](https://github.com/Prashant9683/Chrome-Startup-Page)
+2. Open a terminal in the folder containing both `manifest.json` and `tools/package-browsers.py`.
+3. Run `python3 tools/package-browsers.py` (on Windows, `py -3 tools/package-browsers.py`). This creates all three unsigned packages. The builder uses Python 3 and its standard library.
 
-This will create a `Chrome-Startup-Page` directory containing the `Startup Page Chrome` extension folder.
+### Desktop Chromium browsers
 
-#### Option B: Download as ZIP
+1. Extract `startpage-chromium.zip` into a folder you can keep. If you already run Startpage from source, keep using the same folder to preserve the installation ID and settings.
+2. Enter the address for your browser in the address bar.
 
-1. Go to the GitHub repository: [https://github.com/Prashant9683/Chrome-Startup-Page](https://github.com/Prashant9683/Chrome-Startup-Page)
-2. Click the green **"<> Code"** button, then click **"Download ZIP"**
-3. Extract/unzip the downloaded file. Inside, you will find the `Startup Page Chrome` folder.
+   | Browser | Extensions page |
+   | --- | --- |
+   | Google Chrome or Chromium | `chrome://extensions` |
+   | Microsoft Edge | `edge://extensions` |
+   | Brave | `brave://extensions` |
+   | Vivaldi | `vivaldi://extensions` |
 
-> [!IMPORTANT]
-> - Make sure you **extract the ZIP** before proceeding. Chrome cannot load a `.zip` file directly.
-> - The extension directory to load is the inner **`Startup Page Chrome`** folder (where `manifest.json` is located), **not** the parent repository folder.
+3. Enable **Developer mode**, choose **Load unpacked**, and select the folder with `manifest.json` directly inside it. You can also select the original source folder. [Chrome screenshots: extensions page](guide_images/1.png), [folder selection](guide_images/2.JPEG), [enabled extension](guide_images/3.png)
+4. Confirm **Startpage by Prashant Gehlot** is enabled. In **Vivaldi**, also open **Settings → Tabs → New Tab Page**, select **Start Page**, then tick **Controlled by Extension**. [Vivaldi’s Start Page guide](https://help.vivaldi.com/desktop/navigation/start-page/)
+5. Press **Ctrl+T** or **⌘T**. If the browser asks whether to keep the new tab change, confirm it. To update later, replace the files in the same folder, click **Reload** on the extensions page, and open another tab.
 
----
+Other desktop Chromium browsers can use these steps if they provide both **Load unpacked** and extension control over new tabs. On a managed device, an administrator may control those settings.
 
-### Step 2 — Enable Developer Mode & Load the Extension
+### Firefox desktop
 
-Open **Google Chrome** and navigate to `chrome://extensions`. Turn on **Developer mode** using the toggle in the top-right corner, then click the **"Load unpacked"** button.
+1. Enter `about:debugging#/runtime/this-firefox` in Firefox’s address bar.
+2. Choose **Load Temporary Add-on…** and select the unopened `startpage-firefox.zip`.
+3. Open a new tab. If Firefox asks you to confirm the new tab change, keep Startpage.
+4. After restarting Firefox, repeat steps 1 and 2. For a permanent installation in standard Firefox, the extension must be distributed as a Mozilla-signed add-on. [Mozilla’s temporary installation guide](https://extensionworkshop.com/documentation/develop/temporary-installation-in-firefox/)
 
-![Step 2 — Enable Developer Mode and click Load Unpacked](guide_images/1.png)
+### Safari on Mac
 
-### Step 3 — Select the "Startup Page Chrome" Folder
+1. Open **Safari → Settings → Advanced** and enable **Show features for web developers**.
+2. Open the **Developer** tab in Safari Settings and choose **Add Temporary Extension…**. Approve the unsigned-extension prompt and select `startpage-safari.zip`.
+3. Under **Settings → Extensions**, enable Startpage for the Safari profile you use. Under **Settings → General → New tabs open with**, choose Startpage. To use it for new windows too, choose it under **New windows open with**.
+4. Press **⌘T** to verify. Safari removes a temporary extension when you quit Safari or after 24 hours. For a setup that survives quitting Safari, [use the web version as your homepage](#use-startpage-as-your-safari-homepage) or [build the containing app](#safari-app-for-mac-iphone-and-ipad). [Apple’s Safari installation guide](https://developer.apple.com/documentation/safariservices/running-your-safari-web-extension)
 
-In the file picker, navigate inside the cloned or unzipped repository and select the **`Startup Page Chrome`** folder (the one containing `manifest.json`), then click **Select**.
+### Safari app for Mac, iPhone and iPad
 
-> [!IMPORTANT]
-> Be sure to select the inner **`Startup Page Chrome`** subfolder, not the parent `Chrome-Startup-Page` directory.
+This route requires a Mac with full Xcode. The Safari ZIP contains the web extension resources used to build the app.
 
-![Step 3 — Select the project folder](guide_images/2.JPEG)
+1. Extract `startpage-safari.zip`. Run the following in Terminal, substituting the actual path of the folder containing the extracted `manifest.json`.
 
-### Step 4 — Verify Installation & Keep It Enabled
+   ```sh
+   xcrun safari-web-extension-packager "/path/to/extracted-folder" --app-name Startpage --swift
+   ```
 
-The extension should now appear in your extensions list. Make sure the **toggle is enabled** so it stays active. Open a new tab to see your new Startpage!
+2. In Xcode, select the macOS or iOS app scheme. Choose your Mac, simulator, or connected device as the destination. Configure signing for the app and extension targets, then choose **Product → Run**. A signed distribution build is required for distribution to other users. [Apple’s packaging guide](https://developer.apple.com/documentation/safariservices/packaging-a-web-extension-for-safari)
+3. **On Mac**, launch the containing app once, then enable Startpage in Safari Settings and select it under **New tabs open with**.
+4. **On iPhone or iPad**, open **Settings → Apps → Safari → Extensions** (on older versions, **Settings → Safari → Extensions**). Enable Startpage and select it for new tabs when prompted. Open a fresh Safari tab using the **+** button. [Apple’s device installation guide](https://developer.apple.com/documentation/safariservices/running-your-safari-web-extension)
 
-![Step 4 — Extension installed, keep it enabled](guide_images/3.png)
+### Use Startpage as your Safari homepage
 
-> [!TIP]
-> After any update to the extension files (e.g. after a `git pull`), go back to `chrome://extensions` and click the **Reload** (↻) button on the Startpage card, then open a new tab to see your changes.
+1. Open **Safari → Settings → General**.
+2. Paste `https://prashant9683.github.io/Chrome-Startup-Page/` into **Homepage**.
+3. Set **New tabs open with** to **Homepage**, then press **⌘T** to open Startpage. To use it for new windows too, set **New windows open with** to **Homepage**.
+
+If you use a named Safari profile, choose **Homepage** under **Settings → Profiles → your profile → General → New tabs open with**.
+
+### Web version for other browsers
+
+Open the hosted page on your computer, phone, or tablet. Bookmark it or paste the same URL into your browser’s custom homepage setting where available. [Open Startpage](https://prashant9683.github.io/Chrome-Startup-Page/)
 
 ---
 
@@ -148,18 +189,20 @@ Click the **⚙ gear icon** in the top-right of the new tab page (or press `Ctrl
 |---|---|
 | **Name** | Your name for personalized greetings |
 | **Search engine** | Google, DuckDuckGo, Bing, Brave, Yandex, Qwant, Yahoo, Ecosia, Startpage, Baidu |
-| **Theme** | Dark, Light, System, Custom colors |
+| **Theme** | Pixel, Original, Editorial, Terminal, Glass, macOS Terminal, Vintage Windows |
+| **Color scheme** | Dark, Light, System, or saved custom colors |
 | **Clock format** | 12-hour or 24-hour |
 | **Time zone** | Any IANA time zone, or leave blank for device default |
 | **Show greeting** | Toggle the time-aware greeting message |
 | **Open shortcuts in a new tab** | Control default link behavior |
 | **Show weather** | Enable weather with a city and temperature unit |
+| **Homepage widgets & wallpaper** | To-do list, Notes and a local background image for Startpage |
 | **New-tab layout** | Startpage (default) or Classic Chevron |
 
 ### Default Configuration
 
 Out of the box, Startpage comes with:
-- **Dark** theme
+- **Pixel** theme with the **Dark** color scheme
 - **12-hour** clock using your device's time zone
 - **Google** as the default search engine
 - Six pinned shortcuts: GitHub, YouTube, Gmail, Reddit, Spotify, Google Drive
@@ -196,8 +239,7 @@ npm run test:browser
 ## 📁 Project Structure
 
 ```
-Chrome-Startup-Page/                     # Root repository
-├── guide_images/                        # Installation guide screenshots
+Chrome-Startup-Page/                      # Root repository
 └── Startup Page Chrome/                 # Extension directory (load this in Chrome)
     ├── manifest.json                    # Chrome Extension manifest (Manifest V3)
     ├── index.html                       # Main new-tab page (Startpage desk layout)
@@ -221,9 +263,11 @@ Chrome-Startup-Page/                     # Root repository
     │   └── classic-services.js          # Classic layout optional services
     ├── css/
     │   ├── main.css                     # Startpage desk layout styles
-    │   └── pixels.css                   # Pixel-art canvas & dot-grid styles
+    │   ├── pixels.css                   # Pixel font and dot-grid styles
+    │   └── themes.css                   # Theme palettes, fonts, icons and controls
     ├── img/
     │   └── icon64.png                   # Extension icon
+    ├── guide_images/                    # Installation guide screenshots
     ├── script.js                        # Original Chevron launcher (bundled)
     ├── style.css                        # Original Chevron styles (bundled)
     ├── tests/                           # Unit & browser test suites
@@ -234,6 +278,6 @@ Chrome-Startup-Page/                     # Root repository
 
 ## 📜 License
 
-This project is licensed under the [MIT License](LICENSE).
+Copyright © 2026 Prashant Gehlot. [Startpage license](LICENSE)
 
-Created by **Prashant9683**.
+Developed by **Prashant Gehlot**. The original Startpage code is MIT-licensed. Classic Chevron and the bundled typefaces carry their own credits and license notices. [Credits and dependency inventory](THIRD_PARTY_NOTICES.txt)
